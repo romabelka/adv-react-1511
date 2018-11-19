@@ -1,6 +1,9 @@
 import { combineReducers } from 'redux'
-import auth from '../ducks/auth'
+import { connectRouter } from 'connected-react-router'
+import authReducer, { moduleName as authModule } from '../ducks/auth'
+import history from '../history'
 
 export default combineReducers({
-    auth
+    router: connectRouter(history),
+    [authModule]: authReducer
 })
