@@ -12,10 +12,12 @@
     "react-dom": "^16.6.3",
     "react-redux": "^5.1.1",
     "react-router-dom": "^4.3.1",
+    "react-router-redux": "^5.0.0-alpha.9",
     "react-scripts": "2.1.1",
     "redux": "^4.0.1",
     "redux-form": "^7.4.2",
     "redux-logger": "^3.0.6",
+    "redux-saga": "^0.16.2",
     "redux-thunk": "^2.3.0"
   },
   "scripts": {
