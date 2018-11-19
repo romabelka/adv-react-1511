@@ -15,7 +15,7 @@ export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
  * Reducer
  * */
 export const ReducerRecord = Record({
-    user: null
+    user: null,
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
