@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {NavLink, Route} from "react-router-dom";
+import {NavLink, Route, Redirect} from "react-router-dom";
 import { connect } from 'react-redux';
 import AddAccountForm from "../accounts/add-account-form";
 import { addAccount } from '../../ducks/accounts'
@@ -10,6 +10,9 @@ class AdminPage extends Component {
     }
 
     render() {
+        if (!this.props.auth.user) {
+            return <Redirect to="auth/sign-in" />
+        }
         return (
             <div>
                 <h1>Admin page</h1>
@@ -31,6 +34,6 @@ class AdminPage extends Component {
 }
 
 export default connect(state => ({
-        accounts: state.accounts.toJS()
-    })
-, { addAccount })(AdminPage)
+    auth: state.auth.toJS(),
+    accounts: state.accounts.toJS()
+}), { addAccount })(AdminPage)
