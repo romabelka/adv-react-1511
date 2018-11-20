@@ -1,5 +1,6 @@
 import React, { Component, Fragment } from "react";
 import { NavLink, Route } from "react-router-dom";
+import PrivateRoute from "./components/common/private-route";
 import AdminPage from "./components/routes/admin";
 import AuthPage from "./components/routes/auth";
 import PeoplePage from "./components/routes/people";
@@ -29,7 +30,7 @@ export default class App extends Component {
           </NavLink>
         </div>
         <div>
-          <Route path="/admin" component={AdminPage} />
+          <PrivateRoute path="/admin" component={AdminPage} />
           <Route path="/auth" component={AuthPage} />
           <Route path="/people" component={PeoplePage} />
         </div>
