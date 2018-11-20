@@ -1,7 +1,6 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types'
 import {Field, reduxForm} from 'redux-form';
-import { simpleFormValidator } from '../../utils/validators'
 import ErrorField from '../common/error-field'
 
 class AddAccountForm extends Component {
@@ -12,7 +11,8 @@ class AddAccountForm extends Component {
         return (
             <form onSubmit={this.props.handleSubmit}>
                 <Field name='email' component={ErrorField} label="Email" type="email" />
-                <Field name="password" component={ErrorField} label="Password" type="password" />
+                <Field name="firstName" component={ErrorField} label="First Name" />
+                <Field name="lastName" component={ErrorField} label="Last Name" />
                 <button>Add</button>
             </form>
         );
@@ -21,5 +21,4 @@ class AddAccountForm extends Component {
 
 export default reduxForm({
     form: 'add-account',
-    validate: simpleFormValidator,
 })(AddAccountForm);

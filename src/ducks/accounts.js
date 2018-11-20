@@ -15,7 +15,8 @@ export const ADD_ACCOUNT_SUCCESS = `${prefix}/ADD_ACCOUNT_SUCCESS`
  * */
 export const AccountRecord = Record({
     email: null,
-    password: null,
+    firstName: null,
+    lastName: null,
 });
 
 export default function reducer(state = new Set(), action) {
@@ -41,14 +42,15 @@ export default function reducer(state = new Set(), action) {
 /**
  * Action Creators
  * */
-export const addAccount = (email, password) => {
+export const addAccount = (email, firstName, lastName ) => {
     return (dispatch) => {
-        dispatch(reset('add-account'))
+        dispatch(reset('add-account'));
         dispatch({
             type: ADD_ACCOUNT_SUCCESS,
             payload: {
                 email,
-                password,
+                firstName,
+                lastName,
             }
         });
     }

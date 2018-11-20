@@ -27,7 +27,7 @@ class AdminPage extends Component {
         )
     }
 
-    handleAddAccount = ({ email, password }) => this.props.addAccount(email, password)
+    handleAddAccount = ({ email, firstName, lastName }) => this.props.addAccount(email, firstName, lastName)
 }
 
 export default connect(state => ({
