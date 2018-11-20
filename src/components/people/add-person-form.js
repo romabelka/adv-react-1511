@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {reduxForm, Field} from 'redux-form'
+import {reset, reduxForm, Field} from 'redux-form'
 import emailValidator from 'email-validator'
 import ErrorField from '../common/error-field'
 
@@ -32,8 +32,12 @@ const validate = ({ email, firstName, lastName }) => {
     return errors
 }
 
+const afterSubmit = (result, dispatch) =>
+    dispatch(reset('addPerson'))
+
 export default reduxForm({
     form: 'addPerson',
+    onSubmitSuccess: afterSubmit,
     validate
 })(AddPersonForm)
 
