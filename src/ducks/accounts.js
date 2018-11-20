@@ -1,5 +1,6 @@
 import {appName} from '../config'
 import {Record, Set} from 'immutable'
+import { reset } from 'redux-form';
 
 /**
  * Constants
@@ -40,10 +41,15 @@ export default function reducer(state = new Set(), action) {
 /**
  * Action Creators
  * */
-export const addAccount = (email, password) => ({
-    type: ADD_ACCOUNT_SUCCESS,
-    payload: {
-        email,
-        password,
+export const addAccount = (email, password) => {
+    return (dispatch) => {
+        dispatch(reset('add-account'))
+        dispatch({
+            type: ADD_ACCOUNT_SUCCESS,
+            payload: {
+                email,
+                password,
+            }
+        });
     }
-})
+}
