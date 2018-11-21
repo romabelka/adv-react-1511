@@ -34,6 +34,7 @@ export default function reducer(state = new ReducerRecord(), action) {
 /**
  * Selectors
  * */
+export const isAuthorized = state => !!state[moduleName].user
 
 /**
  * Init logic
