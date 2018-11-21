@@ -1,6 +1,8 @@
 import {appName} from '../config'
 import {Record} from 'immutable'
 import firebase from 'firebase/app'
+import service from "../service/auth"
+import { createSelector } from "reselect"
 
 /**
  * Constants
@@ -35,6 +37,13 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Selectors
  * */
 
+
+export const userSelector = state => state[moduleName].user
+export const loggedInSelector = createSelector(
+  userSelector,
+  user => Boolean(user)
+)
+
 /**
  * Init logic
  */
@@ -51,8 +60,8 @@ firebase.auth().onAuthStateChanged((user) => {
  * */
 export function signIn(email, password) {
     return (dispatch) =>
-        firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(user => dispatch({
+        service.signIn(email, password)
+        .then(user => dispatch({
                 type: SIGN_IN_SUCCESS,
                 payload: { user }
             }))
@@ -60,8 +69,8 @@ export function signIn(email, password) {
 
 export function signUp(email, password) {
     return (dispatch) =>
-        firebase.auth().createUserWithEmailAndPassword(email, password)
-            .then(user => dispatch({
+        service.signUp(email, password)
+        .then(user => dispatch({
                 type: SIGN_UP_SUCCESS,
                 payload: { user }
             }))
