@@ -6,7 +6,6 @@ import {isAuthorized} from '../../ducks/auth'
 class PrivateRoute extends Component {
     render() {
         const {component: Component, isAuthorized, ...rest} = this.props
-        console.log('=== Render private route');
         return <Route {...rest} render={(props) => (
             isAuthorized ?
                 <Component {...props} /> :
