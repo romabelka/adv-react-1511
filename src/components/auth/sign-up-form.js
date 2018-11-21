@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {reduxForm, Field} from 'redux-form'
-import emailValidator from 'email-validator'
+import { simpleFormValidator } from '../../utils/validators'
 import ErrorField from '../common/error-field'
 
 class SignUpForm extends Component {
@@ -23,19 +23,7 @@ class SignUpForm extends Component {
     }
 }
 
-const validate = ({ email, password }) => {
-    const errors = {}
-
-    if (!email) errors.email = 'email is a required field'
-    else if (!emailValidator.validate(email)) errors.email = 'incorrect email'
-
-    if (!password) errors.password = 'password is a required field'
-    else if (password.length < 8) errors.password = 'password is too short'
-
-    return errors
-}
-
 export default reduxForm({
     form: 'auth',
-    validate
+    validate: simpleFormValidator
 })(SignUpForm)
