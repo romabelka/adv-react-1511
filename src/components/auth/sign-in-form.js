@@ -2,9 +2,6 @@ import React, { Component } from 'react'
 import {reduxForm, Field} from 'redux-form'
 
 class SignInForm extends Component {
-    static propTypes = {
-
-    }
 
     render() {
         const { handleSubmit } = this.props

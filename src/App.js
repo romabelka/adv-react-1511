@@ -1,7 +1,9 @@
 import React, { Component, Fragment } from 'react'
-import { NavLink, Route } from 'react-router-dom'
+import { NavLink, Route, Switch } from 'react-router-dom'
+import PrivateRoute from './components/auth/private-route'
 import AdminPage from './components/routes/admin'
 import AuthPage from './components/routes/auth'
+import AddUserPage from './components/routes/add-user'
 
 export default class App extends Component {
     render() {
@@ -17,9 +19,13 @@ export default class App extends Component {
                     <NavLink to = "/auth/sign-up" activeStyle={{ color: 'red' }}>Sign Up</NavLink>
                 </div>
                 <div>
-                    <Route path = "/admin" component = {AdminPage}/>
-                    <Route path = "/auth" component = {AuthPage}/>
+                  <NavLink to = "/add-user" activeStyle={{ color: 'red' }}>Add user</NavLink>
                 </div>
+                <Switch>
+                    <PrivateRoute path = "/admin" component = {AdminPage}/>
+                    <Route path = "/auth" component = {AuthPage}/>
+                    <Route path = "/add-user" component = {AddUserPage}/>
+                </Switch>
             </Fragment>
         )
     }
