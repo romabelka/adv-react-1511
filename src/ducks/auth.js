@@ -55,6 +55,11 @@ export function signIn(email, password) {
                 type: SIGN_IN_SUCCESS,
                 payload: { user }
             }))
+    // Каким образом лучше всего обрабатывать здесь ошибки?
+    // В каком редьюсере удобнее хранить ошибку от сервера, в редьюсере формы или в редьюсере юзера?
+    // Спрашиваю потому что вижу, если я добавляю catch statement, то экшены, генерируемые redux-form
+    // меняются с @@redux-form/SET_SUBMIT_FAILED на @@redux-form/SET_SUBMIT_SUCCEEDED
+    // Это их внутренняя фишка, или нужно как-то это использовать?
 }
 
 export function signUp(email, password) {

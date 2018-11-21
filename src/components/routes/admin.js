@@ -34,6 +34,7 @@ class AdminPage extends Component {
 }
 
 export default connect(state => ({
+    // Роман, как правильно передавать иммутабельные данные в компонент?
     auth: state.auth.toJS(),
     accounts: state.accounts.toJS()
 }), { addAccount })(AdminPage)
