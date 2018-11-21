@@ -1,17 +1,17 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { reduxForm, Field } from "redux-form";
 import emailValidator from "email-validator";
 import ErrorField from "../common/error-field";
 
-class SignUpForm extends Component {
+class AddUserForm extends Component {
   static propTypes = {};
-
   render() {
-    const { handleSubmit } = this.props;
+    const { handleSubmit, submitting, pristine, reset } = this.props;
     return (
-      <div>
-        <h3>Sign Up</h3>
+      <Fragment>
+        <h3>Add user</h3>
         <form onSubmit={handleSubmit}>
+          <Field name="username" label="UserName:" component={ErrorField} />
           <Field name="email" label="Email:" component={ErrorField} />
           <Field
             name="password"
@@ -19,15 +19,28 @@ class SignUpForm extends Component {
             component={ErrorField}
             type="password"
           />
-          <button>Sign Up</button>
+          <button type="submit" disabled={submitting}>
+            Add user
+          </button>
+          <button
+            type="button"
+            disabled={pristine || submitting}
+            onClick={reset}
+          >
+            Clear Values
+          </button>
         </form>
-      </div>
+      </Fragment>
     );
   }
 }
 
-const validate = ({ email, password }) => {
+const validate = ({ username, email, password }) => {
   const errors = {};
+
+  if (!username) errors.email = "username is a required field";
+  else if (username.length < 3 || username.length > 32)
+    errors.username = "incorrect username";
 
   if (!email) errors.email = "email is a required field";
   else if (!emailValidator.validate(email)) errors.email = "incorrect email";
@@ -39,6 +52,6 @@ const validate = ({ email, password }) => {
 };
 
 export default reduxForm({
-  form: "auth",
+  form: "addUser",
   validate
-})(SignUpForm);
+})(AddUserForm);
