@@ -6,7 +6,7 @@ import ErrorField from '../common/error-field'
 class AddUserForm extends Component {
     static propTypes = {
 
-    }
+    }    
 
     render() {
         const { handleSubmit } = this.props
