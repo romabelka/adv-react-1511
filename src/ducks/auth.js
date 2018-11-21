@@ -1,6 +1,6 @@
 import {appName} from '../config'
 import {Record} from 'immutable'
-import firebase from 'firebase/app'
+import { onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword } from '../api'
 import { push, replace } from 'connected-react-router'
 
 /**
@@ -41,20 +41,26 @@ export const authUserSelector = (state) => state.auth.user
 /**
  * Init logic
  */
+try{
+    onAuthStateChanged(
+        (user) => {
+            console.log('call user', user)
+            window.store.dispatch({
+                type: SIGN_IN_SUCCESS,
+                payload: { user }
+            })
+        }
+    )
+} catch(err){
 
-firebase.auth().onAuthStateChanged((user) => {
-    window.store.dispatch({
-        type: SIGN_IN_SUCCESS,
-        payload: { user }
-    })
-})
+}
 
 /**
  * Action Creators
  * */
 export function signIn(email, password) {
     return (dispatch) =>
-        firebase.auth().signInWithEmailAndPassword(email, password)
+        signInWithEmailAndPassword(email, password)
             .then(user => {
                 dispatch({
                     type: SIGN_IN_SUCCESS,
@@ -67,7 +73,7 @@ export function signIn(email, password) {
 
 export function signUp(email, password) {
     return (dispatch) =>
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        createUserWithEmailAndPassword(email, password)
             .then(user => dispatch({
                 type: SIGN_UP_SUCCESS,
                 payload: { user }
