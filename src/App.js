@@ -1,9 +1,16 @@
 import React, { Component, Fragment } from 'react'
-import { NavLink, Route } from 'react-router-dom'
+import { NavLink, Link, Route } from 'react-router-dom'
 import AdminPage from './components/routes/admin'
 import AuthPage from './components/routes/auth'
+import {connect} from "react-redux";
 
-export default class App extends Component {
+class App extends Component {
+    renderAdmin = (props) => {
+        if (this.props.isLoggedIn) {
+            return <AdminPage {...props} />
+        }
+        return <p>Please <Link to={'/auth/sign-in'}>Sign In</Link></p>
+    }
     render() {
         return (
             <Fragment>
@@ -17,10 +24,12 @@ export default class App extends Component {
                     <NavLink to = "/auth/sign-up" activeStyle={{ color: 'red' }}>Sign Up</NavLink>
                 </div>
                 <div>
-                    <Route path = "/admin" component = {AdminPage}/>
+                    <Route path = "/admin" render={this.renderAdmin}/>
                     <Route path = "/auth" component = {AuthPage}/>
                 </div>
             </Fragment>
         )
     }
 }
+
+export default connect((state) => ({isLoggedIn: Boolean(state.auth.user)}), null, null, {pure: false})(App);
