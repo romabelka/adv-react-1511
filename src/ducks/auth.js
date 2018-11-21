@@ -1,6 +1,6 @@
 import {appName} from '../config'
 import {Record} from 'immutable'
-import firebase from 'firebase/app'
+import {authAPI} from '../services/authAPI'
 
 /**
  * Constants
@@ -34,12 +34,13 @@ export default function reducer(state = new ReducerRecord(), action) {
 /**
  * Selectors
  * */
+export const isAuthorized = state => !!state[moduleName].user
 
 /**
  * Init logic
  */
 
-firebase.auth().onAuthStateChanged((user) => {
+authAPI.onAuthStateChanged((user) => {
     window.store.dispatch({
         type: SIGN_IN_SUCCESS,
         payload: { user }
@@ -51,7 +52,7 @@ firebase.auth().onAuthStateChanged((user) => {
  * */
 export function signIn(email, password) {
     return (dispatch) =>
-        firebase.auth().signInWithEmailAndPassword(email, password)
+        authAPI.signIn(email, password)
             .then(user => dispatch({
                 type: SIGN_IN_SUCCESS,
                 payload: { user }
@@ -60,7 +61,7 @@ export function signIn(email, password) {
 
 export function signUp(email, password) {
     return (dispatch) =>
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        authAPI.signUp(email, password)
             .then(user => dispatch({
                 type: SIGN_UP_SUCCESS,
                 payload: { user }
