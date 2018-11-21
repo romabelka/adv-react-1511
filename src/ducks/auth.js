@@ -1,6 +1,7 @@
 import {appName} from '../config'
 import {Record} from 'immutable'
 import firebase from 'firebase/app'
+import { push, replace } from 'connected-react-router'
 
 /**
  * Constants
@@ -35,6 +36,8 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Selectors
  * */
 
+export const authUserSelector = (state) => state.auth.user
+
 /**
  * Init logic
  */
@@ -52,10 +55,14 @@ firebase.auth().onAuthStateChanged((user) => {
 export function signIn(email, password) {
     return (dispatch) =>
         firebase.auth().signInWithEmailAndPassword(email, password)
-            .then(user => dispatch({
-                type: SIGN_IN_SUCCESS,
-                payload: { user }
-            }))
+            .then(user => {
+                dispatch({
+                    type: SIGN_IN_SUCCESS,
+                    payload: { user }
+                })
+                
+                dispatch(push('/admin'))
+            })
 }
 
 export function signUp(email, password) {

@@ -2,8 +2,10 @@ import React, { Component, Fragment } from 'react'
 import { NavLink, Route } from 'react-router-dom'
 import AdminPage from './components/routes/admin'
 import AuthPage from './components/routes/auth'
+import PrivateRoute from './components/common/private-route.js'
 
-export default class App extends Component {
+
+export class App extends Component {
     render() {
         return (
             <Fragment>
@@ -17,10 +19,13 @@ export default class App extends Component {
                     <NavLink to = "/auth/sign-up" activeStyle={{ color: 'red' }}>Sign Up</NavLink>
                 </div>
                 <div>
-                    <Route path = "/admin" component = {AdminPage}/>
+                    <PrivateRoute path = "/admin" component = {AdminPage}/>
                     <Route path = "/auth" component = {AuthPage}/>
                 </div>
             </Fragment>
         )
     }
 }
+
+export default App
+  
