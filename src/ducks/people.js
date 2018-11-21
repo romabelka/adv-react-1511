@@ -3,8 +3,6 @@ import {Record, OrderedMap} from 'immutable'
 import {put, call, takeEvery, all} from 'redux-saga/effects'
 import {reset} from 'redux-form'
 import firebase from 'firebase/app'
-// import * as firebase from 'firebase/app';
-// import 'firebase/auth';
 import 'firebase/database';
 
 
@@ -46,10 +44,10 @@ export default function reducer(state = new ReducerState(), action) {
 }
 
 
-export function addPerson(firstName, lastName, email) {
+export function addPerson(user) {
     return {
         type: ADD_PERSON_REQUEST,
-        payload: {firstName, lastName, email}
+        payload: {...user}
     }
 }
 
@@ -61,7 +59,7 @@ export const addPersonSaga = function * (action) {
         const ref = yield call([peopleRef, peopleRef.push], action.payload)
         yield put({
             type: ADD_PERSON_SUCCESS,
-            payload: {...action.payload, uid: ref.key} //Date.now()}
+            payload: {...action.payload, uid: ref.key}
         })
 
         yield put(reset('person'))
