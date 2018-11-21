@@ -1,6 +1,7 @@
 import {appName} from '../config'
 import {Record} from 'immutable'
-import firebase from 'firebase/app'
+
+import { auth } from '../services/api'
 
 /**
  * Constants
@@ -15,7 +16,8 @@ export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
  * Reducer
  * */
 export const ReducerRecord = Record({
-    user: null
+    email: '',
+    token: ''
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -24,7 +26,9 @@ export default function reducer(state = new ReducerRecord(), action) {
     switch (type) {
         case SIGN_IN_SUCCESS:
         case SIGN_UP_SUCCESS:
-            return state.set('user', payload.user)
+            return state
+                .set('email', payload.user.email)
+                .set('token', payload.user.refreshToken)
 
         default:
             return state
@@ -39,7 +43,7 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Init logic
  */
 
-firebase.auth().onAuthStateChanged((user) => {
+auth.init((user) => {
     window.store.dispatch({
         type: SIGN_IN_SUCCESS,
         payload: { user }
@@ -51,7 +55,7 @@ firebase.auth().onAuthStateChanged((user) => {
  * */
 export function signIn(email, password) {
     return (dispatch) =>
-        firebase.auth().signInWithEmailAndPassword(email, password)
+        auth.signIn(email, password)
             .then(user => dispatch({
                 type: SIGN_IN_SUCCESS,
                 payload: { user }
@@ -60,7 +64,7 @@ export function signIn(email, password) {
 
 export function signUp(email, password) {
     return (dispatch) =>
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        auth.signUp(email, password)
             .then(user => dispatch({
                 type: SIGN_UP_SUCCESS,
                 payload: { user }
