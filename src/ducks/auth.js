@@ -2,6 +2,8 @@ import {appName} from '../config'
 import {Record} from 'immutable'
 import firebase from 'firebase/app'
 
+import * as auth from '../api/auth';
+
 /**
  * Constants
  * */
@@ -15,7 +17,7 @@ export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
  * Reducer
  * */
 export const ReducerRecord = Record({
-    user: null
+    user: null,
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -38,7 +40,6 @@ export default function reducer(state = new ReducerRecord(), action) {
 /**
  * Init logic
  */
-
 firebase.auth().onAuthStateChanged((user) => {
     window.store.dispatch({
         type: SIGN_IN_SUCCESS,
@@ -51,7 +52,7 @@ firebase.auth().onAuthStateChanged((user) => {
  * */
 export function signIn(email, password) {
     return (dispatch) =>
-        firebase.auth().signInWithEmailAndPassword(email, password)
+        auth.signIn(email, password)
             .then(user => dispatch({
                 type: SIGN_IN_SUCCESS,
                 payload: { user }
@@ -60,7 +61,7 @@ export function signIn(email, password) {
 
 export function signUp(email, password) {
     return (dispatch) =>
-        firebase.auth().createUserWithEmailAndPassword(email, password)
+        auth.signUp(email, password)
             .then(user => dispatch({
                 type: SIGN_UP_SUCCESS,
                 payload: { user }
