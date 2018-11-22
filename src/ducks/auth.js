@@ -15,6 +15,7 @@ export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
 export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
 export const SIGN_UP_FAIL = `${prefix}/SIGN_UP_FAIL`
 
+export const SIGN_IN_REQUEST = `${prefix}/SIGN_IN_REQUEST`
 export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
 
 /**
@@ -71,13 +72,10 @@ api.onAuthStateChanged((user) => {
  * Action Creators
  * */
 export function signIn(email, password) {
-  return (dispatch) =>
-    api.signIn(email, password).then((user) =>
-      dispatch({
-        type: SIGN_IN_SUCCESS,
-        payload: { user }
-      })
-    )
+  return {
+    type: SIGN_IN_REQUEST,
+    payload: { email, password }
+  }
 }
 
 export function signUp(email, password) {
@@ -91,7 +89,14 @@ export function signUp(email, password) {
  * Sagas
  **/
 
-export function* signInSaga() {}
+export function* signInSaga({ payload: { email, password } }) {
+  const user = yield call(api.signIn, email, password)
+
+  yield put({
+    type: SIGN_IN_SUCCESS,
+    payload: { user }
+  })
+}
 
 export function* signUpSaga({ payload: { email, password } }) {
   if (yield select(loadingSelector)) return
@@ -116,5 +121,8 @@ export function* signUpSaga({ payload: { email, password } }) {
 }
 
 export function* saga() {
-  yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga)])
+  yield all([
+    takeEvery(SIGN_UP_REQUEST, signUpSaga),
+    takeEvery(SIGN_IN_REQUEST, signInSaga)
+  ])
 }
