@@ -7,13 +7,13 @@ class PeopleList extends Component {
 
   render() {
     return (
-      <div>
+      <ul>
         {this.props.people.map((person) => (
           <li key={person.id}>
             {person.firstName}: {person.email}
           </li>
         ))}
-      </div>
+      </ul>
     )
   }
 }
