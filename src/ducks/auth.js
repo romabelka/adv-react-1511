@@ -2,6 +2,7 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
+import { all, call, put, takeEvery, select } from 'redux-saga/effects'
 
 /**
  * Constants
@@ -9,23 +10,35 @@ import api from '../services/api'
 export const moduleName = 'auth'
 const prefix = `${appName}/${moduleName}`
 
-export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
+export const SIGN_UP_REQUEST = `${prefix}/SIGN_UP_REQUEST`
+export const SIGN_UP_START = `${prefix}/SIGN_UP_START`
 export const SIGN_UP_SUCCESS = `${prefix}/SIGN_UP_SUCCESS`
+export const SIGN_UP_FAIL = `${prefix}/SIGN_UP_FAIL`
+
+export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
 
 /**
  * Reducer
  * */
 export const ReducerRecord = Record({
-  user: null
+  loading: false,
+  user: null,
+  error: null
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
-  const { type, payload } = action
+  const { type, payload, error } = action
 
   switch (type) {
     case SIGN_IN_SUCCESS:
     case SIGN_UP_SUCCESS:
-      return state.set('user', payload.user)
+      return state.set('user', payload.user).set('loading', false)
+
+    case SIGN_UP_START:
+      return state.set('loading', true)
+
+    case SIGN_UP_FAIL:
+      return state.set('error', error)
 
     default:
       return state
@@ -37,6 +50,7 @@ export default function reducer(state = new ReducerRecord(), action) {
  * */
 
 export const userSelector = (state) => state[moduleName].user
+export const loadingSelector = (state) => state[moduleName].loading
 export const isAuthorizedSelector = createSelector(
   userSelector,
   (user) => !!user
@@ -67,11 +81,40 @@ export function signIn(email, password) {
 }
 
 export function signUp(email, password) {
-  return (dispatch) =>
-    api.signUp(email, password).then((user) =>
-      dispatch({
-        type: SIGN_UP_SUCCESS,
-        payload: { user }
-      })
-    )
+  return {
+    type: SIGN_UP_REQUEST,
+    payload: { email, password }
+  }
+}
+
+/**
+ * Sagas
+ **/
+
+export function* signInSaga() {}
+
+export function* signUpSaga({ payload: { email, password } }) {
+  if (yield select(loadingSelector)) return
+
+  yield put({
+    type: SIGN_UP_START
+  })
+
+  try {
+    const user = yield call(api.signUp, email, password)
+
+    yield put({
+      type: SIGN_UP_SUCCESS,
+      payload: { user }
+    })
+  } catch (error) {
+    yield put({
+      type: SIGN_UP_FAIL,
+      error
+    })
+  }
+}
+
+export function* saga() {
+  yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga)])
 }
