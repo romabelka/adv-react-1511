@@ -1,5 +1,5 @@
 import React from "react";
-import { reduxForm, Field } from "redux-form";
+import { reduxForm, reset, Field } from "redux-form";
 
 class AddUserForm extends React.Component {
   static propTypes = {};
@@ -29,6 +29,9 @@ class AddUserForm extends React.Component {
   }
 }
 
+const afterSubmit = (_result, dispatch) => dispatch(reset("addUser"));
+
 export default reduxForm({
-  form: "addUser"
+  form: "addUser",
+  onSubmitSuccess: afterSubmit
 })(AddUserForm);

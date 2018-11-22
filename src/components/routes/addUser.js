@@ -19,7 +19,7 @@ class AddUser extends React.Component {
     );
   }
 
-  handleAdd = ({ email, firstName, lastName }) =>
+  handleAdd = async ({ email, firstName, lastName }) =>
     this.props.addUser(email, firstName, lastName);
 }
 
