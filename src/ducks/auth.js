@@ -99,7 +99,9 @@ export function* signInSaga({ payload: { email, password } }) {
 }
 
 export function* signUpSaga({ payload: { email, password } }) {
-  if (yield select(loadingSelector)) return
+  let isLoading = yield select(loadingSelector)
+
+  if (isLoading) return
 
   yield put({
     type: SIGN_UP_START
