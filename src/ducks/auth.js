@@ -62,10 +62,12 @@ export const isAuthorizedSelector = createSelector(
  */
 
 api.onAuthStateChanged((user) => {
-  window.store.dispatch({
-    type: SIGN_IN_SUCCESS,
-    payload: { user }
-  })
+  // window.store is undefined in test mode
+  window.store &&
+    window.store.dispatch({
+      type: SIGN_IN_SUCCESS,
+      payload: { user }
+    })
 })
 
 /**
