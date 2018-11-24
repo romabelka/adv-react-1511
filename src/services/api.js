@@ -10,6 +10,15 @@ class ApiService {
     this.fb.auth().createUserWithEmailAndPassword(email, password)
 
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
+
+  loadEvents = () =>
+    new Promise((resolve) => {
+      this.fb
+        .database()
+        .ref('/events')
+        .once('value')
+        .then((snapshot) => resolve(snapshot.val()))
+    })
 }
 
 export default new ApiService()
