@@ -1,4 +1,4 @@
-import { createStore, applyMiddleware } from 'redux'
+import { createStore, applyMiddleware, compose } from 'redux'
 import logger from 'redux-logger'
 import thunk from 'redux-thunk'
 import { routerMiddleware } from 'connected-react-router'
@@ -9,11 +9,10 @@ import rootSaga from './saga'
 
 const sagaMiddleware = createSagaMiddleware()
 
-const enhancer = applyMiddleware(
-  thunk,
-  sagaMiddleware,
-  routerMiddleware(history),
-  logger
+const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
+
+const enhancer = composeEnhancers(
+  applyMiddleware(thunk, sagaMiddleware, routerMiddleware(history), logger)
 )
 
 const store = createStore(reducer, enhancer)
