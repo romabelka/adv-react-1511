@@ -1,8 +1,16 @@
 import { appName } from '../config'
-import { Record } from 'immutable'
-import { createSelector } from 'reselect'
+import { Record, Map } from 'immutable'
 import api from '../services/api'
-import { all, call, put, takeEvery, select } from 'redux-saga/effects'
+import { eventChannel } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  select,
+  fork,
+  take
+} from 'redux-saga/effects'
 
 /**
  * Constants
@@ -20,23 +28,25 @@ export const LOAD_EVENTS_FAIL = `${prefix}/LOAD_EVENTS_FAIL`
  * */
 export const ReducerRecord = Record({
   loading: false,
-  events: null,
+  events: new Map(),
   error: null
 })
 
-const EventRecord = Record({
-  id: null,
-  firstName: null,
-  lastName: null,
-  email: null
-})
+// const EventRecord = Record({
+//     month: '',
+//     submissionDeadline: '',
+//     title: '',
+//     url: '',
+//     when: '',
+//     where: '',
+// });
 
 export default function reducer(state = new ReducerRecord(), action) {
   const { type, payload, error } = action
 
   switch (type) {
     case LOAD_EVENTS_SUCCESS:
-      return state.set('events', payload.events).set('loading', false)
+      return state.set('events', new Map(payload.events)).set('loading', false)
     case LOAD_EVENTS_START:
       return state.set('loading', true)
     case LOAD_EVENTS_FAIL:
@@ -50,7 +60,7 @@ export default function reducer(state = new ReducerRecord(), action) {
  * Selectors
  * */
 
-export const eventsSelector = (state) => state[moduleName].events
+export const eventsSelector = (state) => state[moduleName].events.toArray()
 export const loadingSelector = (state) => state[moduleName].loading
 
 /**
@@ -60,37 +70,41 @@ export const loadingSelector = (state) => state[moduleName].loading
 /**
  * Action Creators
  * */
-export function loadEvents(email, password) {
+export function loadEvents() {
   return {
-    type: LOAD_EVENTS_REQUEST,
-    payload: { email, password }
+    type: LOAD_EVENTS_REQUEST
   }
 }
 
 /**
  * Sagas
  **/
+function* readEvents(eventsCollection) {
+  const eventsUpdate = yield call(createEventsSubscription, eventsCollection)
+  while (true) {
+    let action = yield take(eventsUpdate)
+    yield put({
+      type: LOAD_EVENTS_SUCCESS,
+      payload: {
+        events: action
+      }
+    })
+  }
+}
 
-export function* loadEventsSaga({ payload: { email, password } }) {
-  if (yield select(loadingSelector)) return
+function* createEventsSubscription(eventsCollection) {
+  return new eventChannel((emit) => {
+    const update = (data) => emit(data.val())
+    eventsCollection.on('value', update)
+    return eventsCollection.off
+  })
+}
 
+function* loadEventsSaga() {
   yield put({
     type: LOAD_EVENTS_START
   })
-
-  try {
-    const events = yield call(api.loadEvents, email, password)
-
-    yield put({
-      type: LOAD_EVENTS_SUCCESS,
-      payload: { events }
-    })
-  } catch (error) {
-    yield put({
-      type: LOAD_EVENTS_FAIL,
-      error
-    })
-  }
+  yield call(readEvents, window.fb.database().ref('events'))
 }
 
 export function* saga() {

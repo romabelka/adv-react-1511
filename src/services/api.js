@@ -7,7 +7,8 @@ class ApiService {
 
   eventsCollection = firebase.database().ref('events')
 
-  setEventsListener = (resolve, reject) => {}
+  setEventsListener = (resolve, reject) =>
+    this.eventsCollection.on('value', resolve, reject)
 
   signIn = (email, password) =>
     this.fb.auth().signInWithEmailAndPassword(email, password)

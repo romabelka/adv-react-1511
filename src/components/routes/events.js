@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { Route } from 'react-router-dom'
 import { connect } from 'react-redux'
-import PersonPage from './person-page'
+import EventsList from '../events/events-list'
 import * as ducks from '../../ducks/events'
 
 class EventsPage extends Component {
@@ -12,10 +11,11 @@ class EventsPage extends Component {
   }
 
   render() {
+    const { loading, events } = this.props
     return (
       <div>
         <h1>Events Page</h1>
-        <Route path="/admin/people" component={PersonPage} />
+        {loading ? 'Loading' : <EventsList events={events} />}
       </div>
     )
   }
