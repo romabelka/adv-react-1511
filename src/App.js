@@ -23,6 +23,16 @@ export default class App extends Component {
             Sign Up
           </NavLink>
         </div>
+        <div>
+          <NavLink to="/admin/people" activeStyle={{ color: 'red' }}>
+            Person Page
+          </NavLink>
+        </div>
+        <div>
+          <NavLink to="/admin/events" activeStyle={{ color: 'red' }}>
+            Events Page
+          </NavLink>
+        </div>
       </nav>
     )
   }
