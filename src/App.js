@@ -3,6 +3,7 @@ import { NavLink, Route } from 'react-router-dom'
 import AdminPage from './components/routes/admin'
 import AuthPage from './components/routes/auth'
 import ProtectedRoute from './components/common/protected-route'
+import EventsPage from './components/routes/events-page'
 
 export default class App extends Component {
   get menu() {
@@ -23,6 +24,11 @@ export default class App extends Component {
             Sign Up
           </NavLink>
         </div>
+        <div>
+          <NavLink to="/events" activeStyle={{ color: 'red' }}>
+            Events
+          </NavLink>
+        </div>
       </nav>
     )
   }
@@ -32,6 +38,7 @@ export default class App extends Component {
         {this.menu}
         <div>
           <ProtectedRoute path="/admin" component={AdminPage} />
+          <Route path="/events" component={EventsPage} />
           <Route path="/auth" component={AuthPage} />
         </div>
       </Fragment>
