@@ -6,9 +6,13 @@ import { ConnectedRouter } from 'connected-react-router'
 import App from './App'
 import store from './redux/store'
 import history from './history'
+import './mocks'
 
-ReactDOM.render(<Provider store={store}>
+ReactDOM.render(
+  <Provider store={store}>
     <ConnectedRouter history={history}>
-        <App />
+      <App />
     </ConnectedRouter>
-</Provider>, document.getElementById('root'))
+  </Provider>,
+  document.getElementById('root')
+)
