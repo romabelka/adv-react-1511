@@ -1,7 +1,8 @@
-import React, { Component } from 'react'
+import React, { Component, lazy, Suspense } from 'react'
 import { connect } from 'react-redux'
-import EventsList from '../events/events-list'
 import * as ducks from '../../ducks/events'
+
+const EventsList = lazy(() => import('../events/events-list'))
 
 class EventsPage extends Component {
   static propTypes = {}
@@ -15,7 +16,9 @@ class EventsPage extends Component {
     return (
       <div>
         <h1>Events Page</h1>
-        {loading ? 'Loading' : <EventsList events={events} />}
+        <Suspense fallback={'Loading...'}>
+          <EventsList events={events} />
+        </Suspense>
       </div>
     )
   }
