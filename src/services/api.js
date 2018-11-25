@@ -9,6 +9,13 @@ class ApiService {
   signUp = (email, password) =>
     this.fb.auth().createUserWithEmailAndPassword(email, password)
 
+  fetchEvents = () =>
+    this.fb
+      .database()
+      .ref('/events')
+      .once('value')
+      .then((snap) => snap.val())
+
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
 
