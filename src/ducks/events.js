@@ -104,7 +104,7 @@ function* loadEventsSaga() {
   yield put({
     type: LOAD_EVENTS_START
   })
-  yield call(readEvents, window.fb.database().ref('events'))
+  yield call(readEvents, api.eventsCollection)
 }
 
 export function* saga() {
