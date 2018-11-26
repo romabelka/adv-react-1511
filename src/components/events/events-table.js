@@ -4,7 +4,8 @@ import {
   fetchAllEvents,
   eventListSelector,
   loadedSelector,
-  loadingSelector
+  loadingSelector,
+  toggleSelectEvent
 } from '../../ducks/events'
 import Loader from '../common/loader'
 import EventTableRow from './events-table-row'
@@ -42,5 +43,5 @@ export default connect(
     loading: loadingSelector(state),
     loaded: loadedSelector(state)
   }),
-  { fetchAllEvents }
+  { fetchAllEvents, selectEvent: toggleSelectEvent }
 )(EventsTable)
