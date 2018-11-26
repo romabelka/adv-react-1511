@@ -27,17 +27,13 @@ export class EventsTable extends Component {
 
   getRows = () => this.props.events.map(this.getRow)
 
-  getRow = (event) => <EventTableRow key={event.id} event={event} />
-
-  /*
   getRow = (event) => (
-    <tr key={event.id} className="test--events-table__row">
-      <td>{event.title}</td>
-      <td>{event.when}</td>
-      <td>{event.where}</td>
-    </tr>
+    <EventTableRow
+      key={event.id}
+      event={event}
+      onClick={this.props.selectEvent}
+    />
   )
-*/
 }
 
 export default connect(
