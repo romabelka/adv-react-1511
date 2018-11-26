@@ -53,16 +53,14 @@ Selectors
 export const stateSelector = (state) => state[moduleName]
 export const loadingSelector = createSelector(
   stateSelector,
-  (state) => Boolean(state.loading)
+  (state) => state.loading
 )
 
 export const normalizeEvents = (events) => {
-  return Object.keys(events).reduce((acc, curr) => {
-    return acc.concat({
-      id: curr,
-      ...events[curr]
-    })
-  }, [])
+  return Object.keys(events).map((keyId) => ({
+    id: keyId,
+    ...events[keyId]
+  }))
 }
 
 export const eventsSelector = createSelector(

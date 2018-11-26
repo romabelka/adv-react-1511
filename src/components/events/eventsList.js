@@ -22,15 +22,15 @@ class EventsList extends Component {
       <div>
         <WithLoader isLoading={loading}>
           <table>
-            <thead align="left">
-              <th>title</th>
-              <th>submissionDeadline</th>
-              <th>month</th>
-              <th>when</th>
-              <th>where</th>
-              <th>url</th>
-            </thead>
             <tbody>
+              <tr align="left">
+                <th>title</th>
+                <th>submissionDeadline</th>
+                <th>month</th>
+                <th>when</th>
+                <th>where</th>
+                <th>url</th>
+              </tr>
               {events.map((e) => (
                 <EventItem key={e.id} {...e} />
               ))}

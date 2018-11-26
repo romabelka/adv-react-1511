@@ -82,7 +82,9 @@ describe('sagas', () => {
     expect(eventsProcess.throw(error).value).toEqual(
       put({
         type: LOAD_EVENTS_FAIL,
-        error: error
+        payload: {
+          error: error
+        }
       })
     )
 
