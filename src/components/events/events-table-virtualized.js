@@ -20,6 +20,15 @@ export class EventsTableVirtualized extends Component {
 
   render() {
     if (this.props.loading) return <Loader />
+    /**
+     * Хочу кое-что выяснить для своего понимания проблемы.
+     *
+     * внутрь Table  в качестве свойства onRowClick мы передаем анонимную функцию.
+     * Разве это не будет заставлять перерисовываться children у Table каждый раз при прорисовке самого Table просто потому,
+     * что каждый раз будет создаваться новая анонимная функция и передаваться как props в children компнонент?
+     * Разные анонимные функции (текущая и новая) в теории не должны пройти shallowCompare и React перерисует весь компонент, хотя по сути props теже самые
+     *
+     */
     return (
       <Table
         rowCount={this.props.events.length}
@@ -28,6 +37,7 @@ export class EventsTableVirtualized extends Component {
         rowHeight={50}
         headerHeight={50}
         rowGetter={this.rowGetter}
+        onRowClick={({ rowData }) => this.props.selectEvent(rowData.id)}
       >
         <Column dataKey="title" width={200} label="Title" />
         <Column dataKey="where" width={200} label="Place" />
