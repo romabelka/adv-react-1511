@@ -7,7 +7,6 @@ class SelectedEvents extends Component {
   static propTypes = {}
 
   render() {
-    console.log('---', this.props.events)
     return (
       <div>
         {this.props.events.map((event) => (
