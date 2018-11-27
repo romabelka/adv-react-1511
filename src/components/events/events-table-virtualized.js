@@ -21,21 +21,26 @@ export class EventsTableVirtualized extends Component {
   render() {
     if (this.props.loading) return <Loader />
     return (
-      <Table
-        rowCount={this.props.events.length}
-        width={500}
-        height={300}
-        rowHeight={50}
-        headerHeight={50}
-        rowGetter={this.rowGetter}
-      >
-        <Column dataKey="title" width={200} label="Title" />
-        <Column dataKey="where" width={200} label="Place" />
-        <Column dataKey="when" width={200} label="When" />
-      </Table>
+      <div>
+        <h3>EventsTable</h3>
+        <Table
+          rowCount={this.props.events.length}
+          width={500}
+          height={300}
+          rowHeight={50}
+          headerHeight={50}
+          rowGetter={this.rowGetter}
+          onRowClick={this.handleClick}
+        >
+          <Column dataKey="title" width={200} label="Title" />
+          <Column dataKey="where" width={200} label="Place" />
+          <Column dataKey="when" width={200} label="When" />
+        </Table>
+      </div>
     )
   }
 
+  handleClick = (e) => this.props.selectEvent(e.rowData.id)
   rowGetter = ({ index }) => this.props.events[index]
 }
 

@@ -1,15 +1,15 @@
 import React, { Component } from 'react'
 import EventsTable from '../events/events-table-virtualized'
-import SelectedEvents from '../events/selected-events'
+import SelectedEvents from '../events/selected-events-virtualized'
 
 class EventsPage extends Component {
   static propTypes = {}
 
   render() {
     return (
-      <div>
-        <SelectedEvents />
+      <div style={{ display: 'flex' }}>
         <EventsTable />
+        <SelectedEvents />
       </div>
     )
   }
