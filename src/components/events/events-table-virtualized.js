@@ -8,7 +8,8 @@ import {
   loadingSelector,
   toggleSelectEvent,
   fetchMoreEvents,
-  BATCH_SIZE
+  BATCH_SIZE,
+  loadedAllSelector
 } from '../../ducks/events'
 import Loader from '../common/loader'
 import 'react-virtualized/styles.css'
@@ -22,8 +23,8 @@ export class EventsTableVirtualized extends Component {
   }
 
   render() {
-    const { events } = this.props
-    if (this.props.loading) return <Loader />
+    const { events, loadedAll, loading } = this.props
+    if (loading && !events.length) return <Loader />
 
     const isRowLoaded = ({ index }) => Boolean(events[index])
 
@@ -55,8 +56,8 @@ export class EventsTableVirtualized extends Component {
   }
 
   loadMoreRows = ({ startIndex, stopIndex }) => {
-    const { events } = this.props
-    console.log('loadMoreRows', startIndex, stopIndex)
+    const { events, loadedAll, loading } = this.props
+    if (loadedAll || loading) return
     this.props.fetchMoreEvents(events[events.length - 1].id)
   }
 
@@ -71,7 +72,8 @@ export default connect(
   (state) => ({
     events: eventListSelector(state),
     loading: loadingSelector(state),
-    loaded: loadedSelector(state)
+    loaded: loadedSelector(state),
+    loadedAll: loadedAllSelector(state)
   }),
   { fetchAllEvents, selectEvent: toggleSelectEvent, fetchMoreEvents }
 )(EventsTableVirtualized)

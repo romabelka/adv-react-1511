@@ -1,4 +1,4 @@
-import { all, takeEvery, put, call } from 'redux-saga/effects'
+import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
 import { Record, List, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
@@ -47,12 +47,14 @@ export default function reducer(state = new ReducerRecord(), action) {
 
   switch (type) {
     case FETCH_ALL_START:
+    case FETCH_MORE_START:
       return state.set('loading', true)
 
     case FETCH_MORE_SUCCESS:
       return state
         .set('loading', false)
         .set('loaded', true)
+        .set('loadedAll', Object.keys(payload).length < BATCH_SIZE)
         .set(
           'entities',
           state.entities.concat(fbToEntities(payload, EventRecord))
@@ -61,6 +63,7 @@ export default function reducer(state = new ReducerRecord(), action) {
       return state
         .set('loading', false)
         .set('loaded', true)
+        .set('loadedAll', true)
         .set('entities', fbToEntities(payload, EventRecord))
 
     case TOGGLE_SELECT:
@@ -91,6 +94,10 @@ export const loadingSelector = createSelector(
 export const loadedSelector = createSelector(
   stateSelector,
   (state) => state.loaded
+)
+export const loadedAllSelector = createSelector(
+  stateSelector,
+  (state) => state.loadedAll
 )
 export const eventListSelector = createSelector(
   entitiesSelector,
@@ -150,6 +157,12 @@ export function* fetchAllSaga() {
 }
 
 export function* fetchMoreSaga({ payload: { startAt } }) {
+  if (yield select(loadedAllSelector)) {
+    return
+  }
+  if (yield select(loadingSelector)) {
+    return
+  }
   yield put({
     type: FETCH_MORE_START
   })
