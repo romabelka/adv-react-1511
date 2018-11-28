@@ -4,7 +4,7 @@ import { selectedEventsSelector } from '../../ducks/events'
 import SelectedEventCard from './selected-event-card'
 import { List } from 'react-virtualized'
 
-class SelectedEvents extends Component {
+export class SelectedEventsVirtualized extends Component {
   static propTypes = {}
 
   render() {
@@ -30,4 +30,4 @@ class SelectedEvents extends Component {
 
 export default connect((state) => ({
   events: selectedEventsSelector(state)
-}))(SelectedEvents)
+}))(SelectedEventsVirtualized)
