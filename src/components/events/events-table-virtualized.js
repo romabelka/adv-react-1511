@@ -18,6 +18,7 @@ export class EventsTableVirtualized extends Component {
 
   componentDidMount() {
     this.props.chunkLoading({ startIndex: 0, stopIndex: CHUNK_LIMIT })
+    // this.props.fetchAllEvents()
   }
 
   render() {
@@ -35,6 +36,7 @@ export class EventsTableVirtualized extends Component {
      */
     return (
       <Table
+        ref={this.props.registerChild}
         rowCount={this.props.events.length}
         width={500}
         height={300}
@@ -42,6 +44,7 @@ export class EventsTableVirtualized extends Component {
         headerHeight={50}
         rowGetter={this.rowGetter}
         onRowClick={({ rowData }) => this.props.selectEvent(rowData.id)}
+        onRowsRendered={this.props.onRowsRendered}
       >
         <Column dataKey="title" width={200} label="Title" />
         <Column dataKey="where" width={200} label="Place" />

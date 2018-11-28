@@ -56,7 +56,7 @@ export default function reducer(state = new ReducerRecord(), action) {
         .set('entities', fbToEntities(payload, EventRecord))
 
     case FETCH_CHUNK_SUCCESS:
-      return state
+      return state.mergeIn(['entities'], fbToEntities(payload, EventRecord))
 
     case TOGGLE_SELECT:
       return state.update('selected', (selected) =>
@@ -118,12 +118,12 @@ export function toggleSelectEvent(id) {
   }
 }
 
-export function chunkLoading({ startIndex, stopIndex }) {
+export function chunkLoading({ startIndex }) {
   return {
     type: LOAD_CHUNK,
     payload: {
       startIndex,
-      stopIndex
+      limit: CHUNK_LIMIT
     }
   }
 }
@@ -137,17 +137,17 @@ export function* fetchAllSaga() {
     type: FETCH_ALL_START
   })
 
-  const data = yield call(api.fetchAllEvents, CHUNK_LIMIT)
+  const data = yield call(api.fetchAllEvents)
 
   yield put({
     type: FETCH_ALL_SUCCESS,
     payload: data
   })
 }
-export function* fetchFirebaseChunkSaga({
-  payload: { startIndex, stopIndex }
-}) {
-  const data = yield call(api.fetchChunk, startIndex, stopIndex)
+
+export function* fetchFirebaseChunkSaga({ payload: { startIndex, limit } }) {
+  console.log(startIndex, limit)
+  const data = yield call(api.fetchChunk, startIndex, limit)
 
   yield put({
     type: FETCH_CHUNK_SUCCESS,
@@ -157,7 +157,7 @@ export function* fetchFirebaseChunkSaga({
 
 export function* saga() {
   yield all([
-    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
-    takeEvery(LOAD_CHUNK, fetchFirebaseChunkSaga)
+    takeEvery(LOAD_CHUNK, fetchFirebaseChunkSaga),
+    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga)
   ])
 }
