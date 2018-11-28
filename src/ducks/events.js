@@ -168,7 +168,6 @@ export function* fetchMoreSaga({ payload: { startAt } }) {
   })
 
   const data = yield call(api.fetchEventsBatch, startAt, BATCH_SIZE)
-  console.log('data', data)
 
   yield put({
     type: FETCH_MORE_SUCCESS,
