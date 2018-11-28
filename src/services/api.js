@@ -17,6 +17,22 @@ class ApiService {
       .once('value')
       .then((res) => res.val())
 
+  lazyLoadingEvents = (limit, lastLoaded) =>
+    this.fb
+      .database()
+      .ref('events')
+      .orderByKey()
+      .limitToFirst(limit)
+      .startAt(lastLoaded)
+      .once('value')
+      .then((res) => {
+        const values = res.val()
+        if (lastLoaded) {
+          delete values[lastLoaded]
+        }
+        return values
+      })
+
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
 

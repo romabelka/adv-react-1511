@@ -28,6 +28,9 @@ export class EventsTableVirtualized extends Component {
         rowHeight={50}
         headerHeight={50}
         rowGetter={this.rowGetter}
+        onRowClick={this.selectEvent}
+        className="test--events-virtualized-table"
+        rowClassName="test--events-virtualized-table-row"
       >
         <Column dataKey="title" width={200} label="Title" />
         <Column dataKey="where" width={200} label="Place" />
@@ -35,6 +38,8 @@ export class EventsTableVirtualized extends Component {
       </Table>
     )
   }
+
+  selectEvent = ({ rowData: { id } }) => this.props.selectEvent(id)
 
   rowGetter = ({ index }) => this.props.events[index]
 }
