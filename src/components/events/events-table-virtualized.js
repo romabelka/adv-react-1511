@@ -11,6 +11,10 @@ import {
 import Loader from '../common/loader'
 import 'react-virtualized/styles.css'
 
+export function Informer() {
+  return <p>There are no upcoming events</p>
+}
+
 export class EventsTableVirtualized extends Component {
   static propTypes = {}
 
@@ -20,6 +24,8 @@ export class EventsTableVirtualized extends Component {
 
   render() {
     if (this.props.loading) return <Loader />
+    else if (Array.isArray(this.props.events) && !this.props.events.length)
+      return <Informer />
     return (
       <Table
         rowCount={this.props.events.length}
