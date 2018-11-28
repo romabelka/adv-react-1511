@@ -1,67 +1,46 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Table, Column, InfiniteLoader, AutoSizer } from 'react-virtualized'
+import { Table, Column } from 'react-virtualized'
 import {
-  lazyLoadingEvents,
+  fetchAllEvents,
   eventListSelector,
   loadedSelector,
   loadingSelector,
-  toggleSelectEvent,
-  EVENTS_LOADING_LIMIT
+  toggleSelectEvent
 } from '../../ducks/events'
+import Loader from '../common/loader'
 import 'react-virtualized/styles.css'
 
 export class EventsTableVirtualized extends Component {
   static propTypes = {}
 
   componentDidMount() {
-    this.props.lazyLoadingEvents()
-  }
-
-  isRowLoaded = ({ index }) => {
-    const { events } = this.props
-    return !!events[index]
-  }
-
-  loadMoreRows = () => {
-    this.props.lazyLoadingEvents()
+    this.props.fetchAllEvents()
   }
 
   render() {
-    const { loaded, events } = this.props
+    if (this.props.loading) return <Loader />
     return (
-      <InfiniteLoader
-        isRowLoaded={this.isRowLoaded}
-        loadMoreRows={this.loadMoreRows}
-        rowCount={loaded ? events.length : events.length + 1}
-        threshold={EVENTS_LOADING_LIMIT}
+      <Table
+        rowCount={this.props.events.length}
+        width={500}
+        height={300}
+        rowHeight={50}
+        headerHeight={50}
+        rowGetter={this.rowGetter}
+        onRowClick={this.selectEvent}
+        className="test--events-virtualized-table"
+        rowClassName="test--events-virtualized-table-row"
       >
-        {({ onRowsRendered, registerChild }) => (
-          <AutoSizer disableHeight>
-            {({ width }) => (
-              <Table
-                rowCount={events.length}
-                onRowsRendered={onRowsRendered}
-                ref={registerChild}
-                width={width}
-                height={300}
-                rowHeight={50}
-                headerHeight={50}
-                rowGetter={this.rowGetter}
-                onRowClick={this.selectEvent}
-              >
-                <Column dataKey="title" width={200} label="Title" />
-                <Column dataKey="where" width={200} label="Place" />
-                <Column dataKey="when" width={200} label="When" />
-              </Table>
-            )}
-          </AutoSizer>
-        )}
-      </InfiniteLoader>
+        <Column dataKey="title" width={200} label="Title" />
+        <Column dataKey="where" width={200} label="Place" />
+        <Column dataKey="when" width={200} label="When" />
+      </Table>
     )
   }
 
   selectEvent = ({ rowData: { id } }) => this.props.selectEvent(id)
+
   rowGetter = ({ index }) => this.props.events[index]
 }
 
@@ -71,5 +50,5 @@ export default connect(
     loading: loadingSelector(state),
     loaded: loadedSelector(state)
   }),
-  { lazyLoadingEvents, selectEvent: toggleSelectEvent }
+  { fetchAllEvents, selectEvent: toggleSelectEvent }
 )(EventsTableVirtualized)
