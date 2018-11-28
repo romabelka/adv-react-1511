@@ -130,12 +130,13 @@ export function fetchAllEvents() {
   }
 }
 
-export function fetchNextEvents({ startIndex, stopIndex }) {
+export function fetchNextEvents({ startIndex, stopIndex, callback }) {
   return {
     type: FETCH_NEXT_REQUEST,
     payload: {
       from: startIndex,
-      to: stopIndex
+      to: stopIndex,
+      callback: callback
     }
   }
 }
@@ -164,8 +165,8 @@ export function* fetchAllSaga() {
   })
 }
 
-export function* fetchNextSaga({ payload: { from, to } }) {
-  yield call(sleep, 1500)
+export function* fetchNextSaga({ payload: { from, to, callback } }) {
+  yield call(sleep, 3 * 1000)
 
   yield put({
     type: FETCH_NEXT_START,
@@ -179,7 +180,7 @@ export function* fetchNextSaga({ payload: { from, to } }) {
     payload: { events: entities }
   })
 
-  return Promise.resolve()
+  yield call(callback)
 }
 
 export function* saga() {
