@@ -1,4 +1,4 @@
-import { all, takeEvery, put, call } from 'redux-saga/effects'
+import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
 import { Record, List, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
@@ -15,7 +15,13 @@ export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
 export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
 export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
 
+export const LAZY_LOADING_REQUEST = `${prefix}/LAZY_LOADING_REQUEST`
+export const LAZY_LOADING_START = `${prefix}/LAZY_LOADING_START`
+export const LAZY_LOADING_SUCCESS = `${prefix}/LAZY_LOADING_SUCCESS`
+
 export const TOGGLE_SELECT = `${prefix}/TOGGLE_SELECT`
+
+export const EVENTS_LOADING_LIMIT = 10
 
 /**
  * Reducer
@@ -42,6 +48,7 @@ export default function reducer(state = new ReducerRecord(), action) {
 
   switch (type) {
     case FETCH_ALL_START:
+    case LAZY_LOADING_START:
       return state.set('loading', true)
 
     case FETCH_ALL_SUCCESS:
@@ -50,8 +57,13 @@ export default function reducer(state = new ReducerRecord(), action) {
         .set('loaded', true)
         .set('entities', fbToEntities(payload, EventRecord))
 
+    case LAZY_LOADING_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('loaded', Object.keys(payload).length < EVENTS_LOADING_LIMIT - 1)
+        .mergeIn(['entities'], fbToEntities(payload, EventRecord))
+
     case TOGGLE_SELECT:
-      console.log('select', payload)
       return state.update('selected', (selected) =>
         selected.has(payload.id)
           ? selected.remove(payload.id)
@@ -94,6 +106,11 @@ export const selectedEventsSelector = createSelector(
   (entities, ids) => entities.filter((event) => ids.has(event.id))
 )
 
+export const lastLoadedEventSelector = createSelector(
+  entitiesSelector,
+  (entities) => (entities.last() ? entities.last().get('id') : '')
+)
+
 /**
  * Action Creators
  * */
@@ -101,6 +118,12 @@ export const selectedEventsSelector = createSelector(
 export function fetchAllEvents() {
   return {
     type: FETCH_ALL_REQUEST
+  }
+}
+
+export function lazyLoadingEvents() {
+  return {
+    type: LAZY_LOADING_REQUEST
   }
 }
 
@@ -128,6 +151,27 @@ export function* fetchAllSaga() {
   })
 }
 
+export function* lazyLoadingSaga() {
+  yield put({
+    type: LAZY_LOADING_START
+  })
+
+  const lastLoaded = yield select(lastLoadedEventSelector)
+  const data = yield call(
+    api.lazyLoadingEvents,
+    EVENTS_LOADING_LIMIT,
+    lastLoaded
+  )
+
+  yield put({
+    type: LAZY_LOADING_SUCCESS,
+    payload: data
+  })
+}
+
 export function* saga() {
-  yield all([takeEvery(FETCH_ALL_REQUEST, fetchAllSaga)])
+  yield all([
+    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
+    takeEvery(LAZY_LOADING_REQUEST, lazyLoadingSaga)
+  ])
 }
