@@ -10,10 +10,20 @@ class ApiService {
   signUp = (email, password) =>
     this.fb.auth().createUserWithEmailAndPassword(email, password)
 
-  fetchAllEvents = () =>
+  fetchCount = () =>
     this.fb
       .database()
       .ref('events')
+      .once('value')
+      .then((res) => res.numChildren())
+
+  fetchEvents = (id = '') =>
+    this.fb
+      .database()
+      .ref('events')
+      .orderByKey()
+      .limitToFirst(10)
+      .startAt(id)
       .once('value')
       .then((res) => res.val())
 
