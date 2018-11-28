@@ -2,11 +2,13 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { Table, Column } from 'react-virtualized'
 import {
-  fetchAllEvents,
   eventListSelector,
   loadedSelector,
   loadingSelector,
-  toggleSelectEvent
+  toggleSelectEvent,
+  fetchAllEvents,
+  chunkLoading,
+  CHUNK_LIMIT
 } from '../../ducks/events'
 import Loader from '../common/loader'
 import 'react-virtualized/styles.css'
@@ -15,11 +17,13 @@ export class EventsTableVirtualized extends Component {
   static propTypes = {}
 
   componentDidMount() {
-    this.props.fetchAllEvents()
+    this.props.chunkLoading({ startIndex: 0, stopIndex: CHUNK_LIMIT })
   }
 
   render() {
-    if (this.props.loading) return <Loader />
+    if (this.props.loading) {
+      return <Loader />
+    }
     /**
      * Хочу кое-что выяснить для своего понимания проблемы.
      *
@@ -55,5 +59,13 @@ export default connect(
     loading: loadingSelector(state),
     loaded: loadedSelector(state)
   }),
-  { fetchAllEvents, selectEvent: toggleSelectEvent }
+  { selectEvent: toggleSelectEvent, fetchAllEvents, chunkLoading }
 )(EventsTableVirtualized)
+//export default connect(
+//    (state) => ({
+//        events: eventListSelector(state),
+//        loading: loadingSelector(state),
+//        loaded: loadedSelector(state)
+//    }),
+//    { fetchAllEvents, chunkLoading, selectEvent: toggleSelectEvent }
+//)(EventsTableVirtualized)

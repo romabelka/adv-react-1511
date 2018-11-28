@@ -11,11 +11,16 @@ import api from '../services/api'
 export const moduleName = 'events'
 const prefix = `${appName}/${moduleName}`
 
+export const CHUNK_LIMIT = 10
+
 export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
 export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
 export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
 
 export const TOGGLE_SELECT = `${prefix}/TOGGLE_SELECT`
+
+export const LOAD_CHUNK = `${prefix}/LOAD_CHUNK`
+export const FETCH_CHUNK_SUCCESS = `${prefix}/FETCH_CHUNK_SUCCESS`
 
 /**
  * Reducer
@@ -49,6 +54,9 @@ export default function reducer(state = new ReducerRecord(), action) {
         .set('loading', false)
         .set('loaded', true)
         .set('entities', fbToEntities(payload, EventRecord))
+
+    case FETCH_CHUNK_SUCCESS:
+      return state
 
     case TOGGLE_SELECT:
       return state.update('selected', (selected) =>
@@ -110,6 +118,16 @@ export function toggleSelectEvent(id) {
   }
 }
 
+export function chunkLoading({ startIndex, stopIndex }) {
+  return {
+    type: LOAD_CHUNK,
+    payload: {
+      startIndex,
+      stopIndex
+    }
+  }
+}
+
 /**
  * Sagas
  * */
@@ -119,14 +137,27 @@ export function* fetchAllSaga() {
     type: FETCH_ALL_START
   })
 
-  const data = yield call(api.fetchAllEvents)
+  const data = yield call(api.fetchAllEvents, CHUNK_LIMIT)
 
   yield put({
     type: FETCH_ALL_SUCCESS,
     payload: data
   })
 }
+export function* fetchFirebaseChunkSaga({
+  payload: { startIndex, stopIndex }
+}) {
+  const data = yield call(api.fetchChunk, startIndex, stopIndex)
+
+  yield put({
+    type: FETCH_CHUNK_SUCCESS,
+    payload: data
+  })
+}
 
 export function* saga() {
-  yield all([takeEvery(FETCH_ALL_REQUEST, fetchAllSaga)])
+  yield all([
+    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
+    takeEvery(LOAD_CHUNK, fetchFirebaseChunkSaga)
+  ])
 }

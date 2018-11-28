@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import EventsTable from '../events/events-table-virtualized'
+import InfiniteTable from '../events/infinity-loader'
 import SelectedEvents from '../events/selected-events'
 
 class EventsPage extends Component {
@@ -9,7 +9,7 @@ class EventsPage extends Component {
     return (
       <div>
         <SelectedEvents />
-        <EventsTable />
+        <InfiniteTable />
       </div>
     )
   }
