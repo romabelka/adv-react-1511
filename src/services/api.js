@@ -17,6 +17,14 @@ class ApiService {
       .once('value')
       .then((res) => res.val())
 
+  fetchLazyEvents = (id = '') =>
+    this.fb
+      .database()
+      .ref('events')
+      .orderByKey()
+      .limitToFirst(10)
+      .startAt(id)
+
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
 

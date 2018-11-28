@@ -6,7 +6,14 @@ class SelectedEventCard extends Component {
   render() {
     const { event } = this.props
     return (
-      <div style={{ width: 400, height: 150, border: '1px solid black' }}>
+      <div
+        key={event.id}
+        style={{
+          height: 'auto',
+          marginBottom: 10,
+          border: '1px solid tomato'
+        }}
+      >
         <h3>{event.title}</h3>
         <h4>{event.where}</h4>
       </div>
