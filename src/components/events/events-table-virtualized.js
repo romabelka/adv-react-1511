@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Table, Column } from 'react-virtualized'
+import { Table, Column, InfiniteLoader } from 'react-virtualized'
 import {
   fetchAllEvents,
   eventListSelector,
@@ -13,7 +13,6 @@ import {
 } from '../../ducks/events'
 import Loader from '../common/loader'
 import 'react-virtualized/styles.css'
-import InfiniteLoader from 'react-virtualized/dist/es/InfiniteLoader/InfiniteLoader'
 
 export class EventsTableVirtualized extends Component {
   static propTypes = {}
@@ -64,7 +63,7 @@ export class EventsTableVirtualized extends Component {
   rowGetter = ({ index }) => this.props.events[index]
 
   onRowClick = (event) => {
-    this.props.selectEvent(event.rowData.toJS().id)
+    this.props.selectEvent(event.rowData.id)
   }
 }
 
