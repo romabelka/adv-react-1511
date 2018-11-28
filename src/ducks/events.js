@@ -51,6 +51,7 @@ export default function reducer(state = new ReducerRecord(), action) {
         .set('entities', fbToEntities(payload, EventRecord))
 
     case TOGGLE_SELECT:
+      console.log('select', payload)
       return state.update('selected', (selected) =>
         selected.has(payload.id)
           ? selected.remove(payload.id)
