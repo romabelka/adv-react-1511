@@ -2,18 +2,26 @@ import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import { selectedEventsSelector } from '../../ducks/events'
 import SelectedEventCard from './selected-event-card'
+import { List } from 'react-virtualized'
 
 class SelectedEvents extends Component {
   static propTypes = {}
 
+  rowRenderer = ({ index }) => {
+    const event = this.props.events[index]
+    return <SelectedEventCard event={event} key={event.id} />
+  }
+
   render() {
-    console.log('---', this.props.events)
+    const { events } = this.props
     return (
-      <div>
-        {this.props.events.map((event) => (
-          <SelectedEventCard event={event} key={event.id} />
-        ))}
-      </div>
+      <List
+        rowCount={events.length}
+        height={200}
+        width={500}
+        rowHeight={180}
+        rowRenderer={this.rowRenderer}
+      />
     )
   }
 }

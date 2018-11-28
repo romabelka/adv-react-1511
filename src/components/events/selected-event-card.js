@@ -11,7 +11,7 @@ class SelectedEventCard extends Component {
           width: 400,
           border: '1px solid black',
           padding: '0 10px',
-          lineHeight: 0
+          lineHeight: 3
         }}
       >
         <h3>{event.title}</h3>
