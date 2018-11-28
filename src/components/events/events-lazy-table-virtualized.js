@@ -11,6 +11,7 @@ import {
   fetchLazy
 } from '../../ducks/events'
 import Loader from '../common/loader'
+import EventsTableVirtualized from './events-table-virtualized'
 
 export class EventsLazyTableVirtualized extends Component {
   static propTypes = {}
@@ -29,21 +30,13 @@ export class EventsLazyTableVirtualized extends Component {
         rowCount={eventsCount}
       >
         {({ onRowsRendered, registerChild }) => (
-          <Table
+          <EventsTableVirtualized
             onRowsRendered={onRowsRendered}
             ref={registerChild}
             rowCount={eventsCount}
-            width={500}
-            height={300}
-            rowHeight={50}
-            headerHeight={50}
             rowGetter={this.rowGetter}
             onRowClick={this.handleRowClick}
-          >
-            <Column dataKey="title" width={200} label="Title" />
-            <Column dataKey="where" width={200} label="Place" />
-            <Column dataKey="when" width={200} label="When" />
-          </Table>
+          />
         )}
       </InfiniteLoader>
     )
