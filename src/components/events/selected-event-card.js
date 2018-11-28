@@ -4,9 +4,11 @@ class SelectedEventCard extends Component {
   static propTypes = {}
 
   render() {
-    const { event } = this.props
+    const { event, style } = this.props
     return (
-      <div style={{ width: 400, height: 150, border: '1px solid black' }}>
+      <div
+        style={{ ...style, width: 400, height: 150, border: '1px solid black' }}
+      >
         <h3>{event.title}</h3>
         <h4>{event.where}</h4>
       </div>
