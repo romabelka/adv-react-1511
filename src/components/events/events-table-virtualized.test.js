@@ -1,13 +1,10 @@
 import React from 'react'
-import Enzyme, { shallow, mount } from 'enzyme'
-import Adapter from 'enzyme-adapter-react-16'
+import { shallow, mount } from 'enzyme'
 import { EventsTableVirtualized } from './events-table-virtualized'
 import eventMocks from '../../mocks/conferences'
 import { InfiniteLoader, List } from 'react-virtualized'
 
 const events = eventMocks.map((event) => ({ id: Math.random(), ...event }))
-
-Enzyme.configure({ adapter: new Adapter() })
 
 describe('<EventsTableVirtualized />', () => {
   let wrapper
