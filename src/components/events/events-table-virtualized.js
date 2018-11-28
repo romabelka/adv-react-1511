@@ -1,15 +1,19 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
-import { Table, Column } from 'react-virtualized'
+import { InfiniteLoader, List } from 'react-virtualized'
+import 'react-virtualized/styles.css'
+
 import {
   fetchAllEvents,
+  fetchNextEvents,
   eventListSelector,
+  loadedEntitiesSelector,
   loadedSelector,
   loadingSelector,
   toggleSelectEvent
 } from '../../ducks/events'
+
 import Loader from '../common/loader'
-import 'react-virtualized/styles.css'
 
 export class EventsTableVirtualized extends Component {
   static propTypes = {}
@@ -18,32 +22,75 @@ export class EventsTableVirtualized extends Component {
     this.props.fetchAllEvents()
   }
 
-  render() {
-    if (this.props.loading) return <Loader />
+  loadMoreRows = ({ startIndex, stopIndex }) => {
+    return new Promise((resolve) => {
+      this.props.fetchNextEvents({
+        startIndex,
+        stopIndex,
+        callback: resolve
+      })
+    })
+  }
+
+  isRowLoaded = ({ index }) => {
+    return !!this.props.loadedEvents[index]
+  }
+
+  rowRenderer = ({ key, index, style }) => {
+    const { loadedEvents } = this.props
+    const event = loadedEvents[index]
+
+    let content
+
+    if (event) {
+      content = (
+        <div>
+          {event.when} <b>name:</b> {event.title}
+        </div>
+      )
+    } else content = 'loading...'
+
     return (
-      <Table
-        rowCount={this.props.events.length}
-        width={500}
-        height={300}
-        rowHeight={50}
-        headerHeight={50}
-        rowGetter={this.rowGetter}
-      >
-        <Column dataKey="title" width={200} label="Title" />
-        <Column dataKey="where" width={200} label="Place" />
-        <Column dataKey="when" width={200} label="When" />
-      </Table>
+      <div key={key} style={style} onClick={() => this.handleRowClick(event)}>
+        {content}
+      </div>
     )
   }
 
-  rowGetter = ({ index }) => this.props.events[index]
+  render() {
+    if (this.props.loading) return <Loader />
+    return (
+      <InfiniteLoader
+        loadMoreRows={this.loadMoreRows}
+        isRowLoaded={this.isRowLoaded}
+        rowCount={this.props.allevents.length}
+      >
+        {({ onRowsRendered, registerChild }) => (
+          <List
+            height={200}
+            onRowsRendered={onRowsRendered}
+            ref={registerChild}
+            rowCount={this.props.allevents.length}
+            rowHeight={20}
+            rowRenderer={this.rowRenderer}
+            width={500}
+          />
+        )}
+      </InfiniteLoader>
+    )
+  }
+
+  handleRowClick = (event) => {
+    event && this.props.selectEvent(event.id)
+  }
 }
 
 export default connect(
   (state) => ({
-    events: eventListSelector(state),
+    allevents: eventListSelector(state),
+    loadedEvents: loadedEntitiesSelector(state),
     loading: loadingSelector(state),
     loaded: loadedSelector(state)
   }),
-  { fetchAllEvents, selectEvent: toggleSelectEvent }
+  { fetchAllEvents, fetchNextEvents, selectEvent: toggleSelectEvent }
 )(EventsTableVirtualized)

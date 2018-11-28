@@ -11,3 +11,7 @@ export function fbToEntities(values, DataRecord) {
     )
   )
 }
+
+export function sleep(ms) {
+  return new Promise((resolve) => setTimeout(() => resolve(true), ms))
+}
