@@ -29,6 +29,7 @@ export class EventsTableVirtualized extends Component {
         headerHeight={50}
         rowGetter={this.rowGetter}
         onRowClick={this.handlerRowOnClick}
+        rowClassName={'test--events-table__row'}
       >
         <Column dataKey="title" width={200} label="Title" />
         <Column dataKey="where" width={200} label="Place" />
