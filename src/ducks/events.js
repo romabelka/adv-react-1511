@@ -1,4 +1,4 @@
-import { all, takeEvery, put, call } from 'redux-saga/effects'
+import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
 import { Record, List, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
@@ -11,9 +11,13 @@ import api from '../services/api'
 export const moduleName = 'events'
 const prefix = `${appName}/${moduleName}`
 
-export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
-export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
-export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
+export const FETCH_EVENTS_COUNT_REQUEST = `${prefix}/FETCH_EVENTS_COUNT_REQUEST`
+export const FETCH_EVENTS_COUNT_START = `${prefix}/FETCH_EVENTS_COUNT_START`
+export const FETCH_EVENTS_COUNT_SUCCESS = `${prefix}/FETCH_EVENTS_COUNT_SUCCESS`
+
+export const FETCH_EVENTS_LAZY_REQUEST = `${prefix}/FETCH_EVENTS_LAZY_REQUEST`
+export const FETCH_EVENTS_LAZY_START = `${prefix}/FETCH_EVENTS_LAZY_START`
+export const FETCH_EVENTS_LAZY_SUCCESS = `${prefix}/FETCH_EVENTS_LAZY_SUCCESS`
 
 export const TOGGLE_SELECT = `${prefix}/TOGGLE_SELECT`
 
@@ -21,10 +25,12 @@ export const TOGGLE_SELECT = `${prefix}/TOGGLE_SELECT`
  * Reducer
  * */
 export const ReducerRecord = Record({
-  loading: false,
-  loaded: false,
+  isCountLoading: false,
+  areEventsLoading: false,
   selected: new OrderedSet([]),
-  entities: new List([])
+  entities: new List([]),
+  eventsCount: 0,
+  userMaxScrollIndex: 0
 })
 
 export const EventRecord = Record({
@@ -41,14 +47,21 @@ export default function reducer(state = new ReducerRecord(), action) {
   const { type, payload } = action
 
   switch (type) {
-    case FETCH_ALL_START:
-      return state.set('loading', true)
-
-    case FETCH_ALL_SUCCESS:
+    case FETCH_EVENTS_COUNT_START:
+      return state.set('isCountLoading', true)
+    case FETCH_EVENTS_COUNT_SUCCESS:
       return state
-        .set('loading', false)
-        .set('loaded', true)
-        .set('entities', fbToEntities(payload, EventRecord))
+        .set('isCountLoading', false)
+        .set('eventsCount', payload.eventsCount)
+
+    case FETCH_EVENTS_LAZY_REQUEST:
+      return state.set('userMaxScrollIndex', payload.userMaxScrollIndex)
+    case FETCH_EVENTS_LAZY_START:
+      return state.set('areEventsLoading', true)
+    case FETCH_EVENTS_LAZY_SUCCESS:
+      return state
+        .set('areEventsLoading', false)
+        .mergeIn(['entities'], fbToEntities(payload, EventRecord))
 
     case TOGGLE_SELECT:
       return state.update('selected', (selected) =>
@@ -71,13 +84,17 @@ export const entitiesSelector = createSelector(
   stateSelector,
   (state) => state.entities
 )
-export const loadingSelector = createSelector(
+export const countLoadingSelector = createSelector(
   stateSelector,
-  (state) => state.loading
+  (state) => state.isCountLoading
 )
-export const loadedSelector = createSelector(
+export const areEventsLoadingSelector = createSelector(
   stateSelector,
-  (state) => state.loaded
+  (state) => state.areEventsLoading
+)
+export const eventsCountSelector = createSelector(
+  stateSelector,
+  (state) => state.eventsCount
 )
 export const eventListSelector = createSelector(
   entitiesSelector,
@@ -90,16 +107,28 @@ export const selectedIdsSelector = createSelector(
 export const selectedEventsSelector = createSelector(
   eventListSelector,
   selectedIdsSelector,
-  (entities, ids) => entities.filter((event) => ids.has(event.id))
+  (entities, ids) => {
+    return entities.filter((event) => {
+      return ids.has(event.id)
+    })
+  }
 )
 
 /**
  * Action Creators
  * */
-
-export function fetchAllEvents() {
+export function fetchEventsCount() {
   return {
-    type: FETCH_ALL_REQUEST
+    type: FETCH_EVENTS_COUNT_REQUEST
+  }
+}
+
+export function fetchLazy(userMaxScrollIndex) {
+  return {
+    type: FETCH_EVENTS_LAZY_REQUEST,
+    payload: {
+      userMaxScrollIndex
+    }
   }
 }
 
@@ -114,19 +143,50 @@ export function toggleSelectEvent(id) {
  * Sagas
  * */
 
-export function* fetchAllSaga() {
+export function* fetchEventsCountSaga() {
   yield put({
-    type: FETCH_ALL_START
+    type: FETCH_EVENTS_COUNT_START
   })
 
-  const data = yield call(api.fetchAllEvents)
+  const eventsCount = yield call(api.fetchEventsCount)
 
   yield put({
-    type: FETCH_ALL_SUCCESS,
-    payload: data
+    type: FETCH_EVENTS_COUNT_SUCCESS,
+    payload: {
+      eventsCount
+    }
   })
 }
 
+export function* fetchLazySaga() {
+  const state = yield select(stateSelector)
+
+  if (state.areEventsLoading) return
+
+  yield put({
+    type: FETCH_EVENTS_LAZY_START
+  })
+
+  const lastEvents = state.entities.last()
+  const events = yield call(api.fetchEvents, lastEvents && lastEvents.id)
+
+  if (lastEvents) {
+    delete events[lastEvents.id]
+  }
+
+  yield put({
+    type: FETCH_EVENTS_LAZY_SUCCESS,
+    payload: events
+  })
+
+  if (state.userMaxScrollIndex > state.entities.size) {
+    yield fetchLazySaga()
+  }
+}
+
 export function* saga() {
-  yield all([takeEvery(FETCH_ALL_REQUEST, fetchAllSaga)])
+  yield all([
+    takeEvery(FETCH_EVENTS_COUNT_REQUEST, fetchEventsCountSaga),
+    takeEvery(FETCH_EVENTS_LAZY_REQUEST, fetchLazySaga)
+  ])
 }
