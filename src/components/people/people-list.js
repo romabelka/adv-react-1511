@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import PersonCard from './person-card'
 import { connect } from 'react-redux'
 import { peopleSelector } from '../../ducks/people'
 
@@ -7,13 +8,11 @@ class PeopleList extends Component {
 
   render() {
     return (
-      <ul>
+      <div>
         {this.props.people.map((person) => (
-          <li key={person.id}>
-            {person.firstName}: {person.email}
-          </li>
+          <PersonCard person={person} key={person.id} />
         ))}
-      </ul>
+      </div>
     )
   }
 }

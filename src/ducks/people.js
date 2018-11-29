@@ -16,15 +16,29 @@ export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 /**
  * Reducer
  * */
-const ReducerState = Record({
-  entities: new List([])
-})
 
 const PersonRecord = Record({
   id: null,
   firstName: null,
   lastName: null,
   email: null
+})
+
+const ReducerState = Record({
+  entities: new List([
+    new PersonRecord({
+      id: 1,
+      firstName: 'Roma',
+      lastName: 'Yakobchuk',
+      email: 'qwer@awsd.com'
+    }),
+    new PersonRecord({
+      id: 2,
+      firstName: 'Ilya',
+      lastName: 'Kantor',
+      email: 'qwer@aksdfhg.com'
+    })
+  ])
 })
 
 export default function reducer(state = new ReducerState(), action) {

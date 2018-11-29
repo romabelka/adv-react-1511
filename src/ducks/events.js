@@ -154,7 +154,6 @@ export const fetchLazySaga = function*() {
   })
 
   const lastEvent = state.entities.last()
-  console.log('--- last event', lastEvent && lastEvent.id)
 
   const data = yield call(api.fetchLazyEvents, lastEvent && lastEvent.id)
 
