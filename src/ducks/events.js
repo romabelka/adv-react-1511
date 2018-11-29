@@ -21,6 +21,8 @@ export const FETCH_LAZY_REQUEST = `${prefix}/FETCH_LAZY_REQUEST`
 export const FETCH_LAZY_START = `${prefix}/FETCH_LAZY_START`
 export const FETCH_LAZY_SUCCESS = `${prefix}/FETCH_LAZY_SUCCESS`
 
+export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
+
 /**
  * Reducer
  * */
@@ -39,6 +41,9 @@ export const EventRecord = Record({
   url: null,
   when: null,
   where: null
+  /*
+  peopleIds: []
+*/
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -66,6 +71,11 @@ export default function reducer(state = new ReducerRecord(), action) {
         selected.has(payload.id)
           ? selected.remove(payload.id)
           : selected.add(payload.id)
+      )
+
+    case ADD_PERSON_REQUEST:
+      return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
+        ids.concat(payload.personId)
       )
 
     default:
@@ -124,6 +134,16 @@ export function toggleSelectEvent(id) {
 export function fetchLazy() {
   return {
     type: FETCH_LAZY_REQUEST
+  }
+}
+
+export function addPersonToEvent(personId, eventId) {
+  return {
+    type: ADD_PERSON_REQUEST,
+    payload: {
+      personId,
+      eventId
+    }
   }
 }
 

@@ -64,6 +64,13 @@ export const peopleSelector = createSelector(
   (state) => state.entities.valueSeq().toArray()
 )
 
+export const idSelector = (_, props) => props.id
+export const personSelector = createSelector(
+  peopleSelector,
+  idSelector,
+  (list, id) => list.find((person) => person.id === id)
+)
+
 /**
  * Action Creators
  * */
