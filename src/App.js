@@ -3,6 +3,7 @@ import { NavLink, Route } from 'react-router-dom'
 import AdminPage from './components/routes/admin'
 import AuthPage from './components/routes/auth'
 import ProtectedRoute from './components/common/protected-route'
+import CustomDragLayer from './components/common/custom-drag-layer'
 
 export default class App extends Component {
   get menu() {
@@ -29,6 +30,7 @@ export default class App extends Component {
   render() {
     return (
       <Fragment>
+        <CustomDragLayer />
         {this.menu}
         <div>
           <ProtectedRoute path="/admin" component={AdminPage} />
