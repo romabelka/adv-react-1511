@@ -1,17 +1,13 @@
 import React, { Component } from 'react'
+import { DragSource } from 'react-dnd'
+import { defaultTableRowRenderer } from 'react-virtualized'
 
 class EventTableRow extends Component {
   static propTypes = {}
 
   render() {
-    const { event } = this.props
-    return (
-      <tr className="test--events-table__row" onClick={this.handleClick}>
-        <td>{event.title}</td>
-        <td>{event.when}</td>
-        <td>{event.where}</td>
-      </tr>
-    )
+    const { connectDragSource, ...otherProps } = this.props
+    return connectDragSource(defaultTableRowRenderer(otherProps))
   }
 
   handleClick = () => {
@@ -20,4 +16,16 @@ class EventTableRow extends Component {
   }
 }
 
-export default EventTableRow
+const spec = {
+  beginDrag(props) {
+    return {
+      id: props.rowData.id
+    }
+  }
+}
+
+const collect = (connect) => ({
+  connectDragSource: connect.dragSource()
+})
+
+export default DragSource('event', spec, collect)(EventTableRow)

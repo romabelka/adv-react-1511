@@ -7,6 +7,7 @@ class PersonDndPreview extends Component {
 
   render() {
     const { person } = this.props
+    if (!person) return null
     return <div>{person.email}</div>
   }
 }

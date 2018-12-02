@@ -10,10 +10,29 @@ class ApiService {
   signUp = (email, password) =>
     this.fb.auth().createUserWithEmailAndPassword(email, password)
 
-  fetchAllEvents = () =>
+  delete = (path) => {
+    return this.fb
+      .database()
+      .ref(path.join('/'))
+      .remove()
+  }
+
+  addPerson = (id, person) =>
     this.fb
       .database()
-      .ref('events')
+      .ref('people/' + id)
+      .set(person)
+
+  addPersonToEvent = (personId, eventId) =>
+    this.fb
+      .database()
+      .ref(`events/${eventId}/peopleIds/${personId}`)
+      .set(personId)
+
+  fetchAll = (refName) =>
+    this.fb
+      .database()
+      .ref(refName)
       .once('value')
       .then((res) => res.val())
 
