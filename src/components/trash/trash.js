@@ -3,11 +3,11 @@ import { DropTarget } from 'react-dnd'
 import { connect } from 'react-redux'
 import { addPersonToEvent } from '../../ducks/events'
 
-class SelectedEventCard extends Component {
+class Trash extends Component {
   static propTypes = {}
 
   render() {
-    const { event, dropTarget, canDrop, isOver } = this.props
+    const { dropTarget, canDrop, isOver } = this.props
     const borderColor = canDrop ? (isOver ? 'red' : 'green') : 'black'
 
     return dropTarget(
@@ -16,23 +16,24 @@ class SelectedEventCard extends Component {
           width: 400,
           height: 150,
           border: `1px solid ${borderColor}`,
-          boxSizing: 'border-box'
+          boxSizing: 'border-box',
+          float: 'right',
+          lineHeight: 150
         }}
       >
-        <h3>{event.title}</h3>
-        <h4>{event.where}</h4>
+        Drop here!
       </div>
     )
   }
 }
 
-const specDrop = {
+const spec = {
   drop(props, monitor) {
-    props.addPersonToEvent(monitor.getItem(), props.event.id)
+    //@TODO here should be delete via sagas workflow
   }
 }
 
-const collectDrop = (connect, monitor) => ({
+const collect = (connect, monitor) => ({
   dropTarget: connect.dropTarget(),
   canDrop: monitor.canDrop(),
   isOver: monitor.isOver()
@@ -41,4 +42,4 @@ const collectDrop = (connect, monitor) => ({
 export default connect(
   null,
   { addPersonToEvent }
-)(DropTarget('person', specDrop, collectDrop)(SelectedEventCard))
+)(DropTarget(['person', 'event'], spec, collect)(Trash))

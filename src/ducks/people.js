@@ -2,8 +2,9 @@ import { appName } from '../config'
 import { Record, List } from 'immutable'
 import { reset } from 'redux-form'
 import { createSelector } from 'reselect'
-import { call, put, takeEvery } from 'redux-saga/effects'
-import { generateId } from '../services/util'
+import { call, put, takeEvery, all } from 'redux-saga/effects'
+import { fbToPeople, generateId } from '../services/util'
+import api from '../services/api'
 
 /**
  * Constants
@@ -12,6 +13,10 @@ export const moduleName = 'people'
 const prefix = `${appName}/${moduleName}`
 export const ADD_PERSON = `${prefix}/ADD_PERSON`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
+
+export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
+export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
+export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
 
 /**
  * Reducer
@@ -38,7 +43,9 @@ const ReducerState = Record({
       lastName: 'Kantor',
       email: 'qwer@aksdfhg.com'
     })
-  ])
+  ]),
+  loading: false,
+  loaded: false
 })
 
 export default function reducer(state = new ReducerState(), action) {
@@ -49,6 +56,15 @@ export default function reducer(state = new ReducerState(), action) {
       return state.update('entities', (entities) =>
         entities.push(new PersonRecord(payload.person))
       )
+
+    case FETCH_ALL_START:
+      return state.set('loading', true)
+
+    case FETCH_ALL_SUCCESS:
+      return state
+        .set('loading', false)
+        .set('loaded', true)
+        .set('entities', fbToPeople(payload, PersonRecord))
 
     default:
       return state
@@ -82,6 +98,12 @@ export function addPerson(person) {
   }
 }
 
+export function fetchAllPersons() {
+  return {
+    type: FETCH_ALL_REQUEST
+  }
+}
+
 /**
  * Sagas
  **/
@@ -101,6 +123,22 @@ export function* addPersonSaga(action) {
   yield put(reset('person'))
 }
 
+export function* fetchAllSaga() {
+  yield put({
+    type: FETCH_ALL_START
+  })
+
+  const data = yield call(api.fetchAllPersons)
+
+  yield put({
+    type: FETCH_ALL_SUCCESS,
+    payload: data
+  })
+}
+
 export function* saga() {
-  yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+  yield all([
+    takeEvery(ADD_PERSON_REQUEST, addPersonSaga),
+    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga)
+  ])
 }
