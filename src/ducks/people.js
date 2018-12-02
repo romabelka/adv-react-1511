@@ -1,17 +1,26 @@
 import { appName } from '../config'
-import { Record, List } from 'immutable'
+import { Record, OrderedMap } from 'immutable'
 import { reset } from 'redux-form'
+import firebase from 'firebase/app'
 import { createSelector } from 'reselect'
-import { call, put, takeEvery } from 'redux-saga/effects'
-import { generateId } from '../services/util'
+import { call, put, takeEvery, select, all } from 'redux-saga/effects'
+import { fbToEntities } from '../services/util'
 
 /**
  * Constants
  * */
 export const moduleName = 'people'
 const prefix = `${appName}/${moduleName}`
-export const ADD_PERSON = `${prefix}/ADD_PERSON`
+
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
+export const ADD_PERSON_START = `${prefix}/ADD_PERSON_START`
+export const ADD_PERSON_SUCCESS = `${prefix}/ADD_PERSON_SUCCESS`
+
+export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
+export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
+
+export const DELETE_PERSON_REQUEST = `${prefix}/DELETE_PERSON_REQUEST`
+export const DELETE_PERSON_SUCCESS = `${prefix}/DELETE_PERSON_SUCCESS`
 
 /**
  * Reducer
@@ -24,31 +33,18 @@ const PersonRecord = Record({
   email: null
 })
 
-const ReducerState = Record({
-  entities: new List([
-    new PersonRecord({
-      id: 1,
-      firstName: 'Roma',
-      lastName: 'Yakobchuk',
-      email: 'qwer@awsd.com'
-    }),
-    new PersonRecord({
-      id: 2,
-      firstName: 'Ilya',
-      lastName: 'Kantor',
-      email: 'qwer@aksdfhg.com'
-    })
-  ])
-})
-
-export default function reducer(state = new ReducerState(), action) {
+export default function reducer(state = new OrderedMap({}), action) {
   const { type, payload } = action
 
   switch (type) {
-    case ADD_PERSON:
-      return state.update('entities', (entities) =>
-        entities.push(new PersonRecord(payload.person))
-      )
+    case ADD_PERSON_SUCCESS:
+      return state.setIn(['entities', payload.id], new PersonRecord(payload))
+
+    case FETCH_ALL_SUCCESS:
+      return state.set('entities', fbToEntities(payload, PersonRecord))
+
+    case DELETE_PERSON_SUCCESS:
+      return state.deleteIn(['entities', payload.id])
 
     default:
       return state
@@ -61,7 +57,10 @@ export default function reducer(state = new ReducerState(), action) {
 export const stateSelector = (state) => state[moduleName]
 export const peopleSelector = createSelector(
   stateSelector,
-  (state) => state.entities.valueSeq().toArray()
+  (state) => {
+    const entities = state.get('entities')
+    return entities ? entities.valueSeq().toArray() : []
+  }
 )
 
 export const idSelector = (_, props) => props.id
@@ -82,25 +81,65 @@ export function addPerson(person) {
   }
 }
 
+export function fetchAllPeople() {
+  return {
+    type: FETCH_ALL_REQUEST
+  }
+}
+
+export function deletePerson(id) {
+  return {
+    type: DELETE_PERSON_REQUEST,
+    payload: { id }
+  }
+}
+
 /**
  * Sagas
  **/
 
 export function* addPersonSaga(action) {
-  const { person } = action.payload
+  yield put({
+    type: ADD_PERSON_START,
+    payload: { ...action.payload.person }
+  })
 
-  const id = yield call(generateId)
+  const peopleRef = firebase.database().ref('people')
+
+  const { key } = yield call([peopleRef, peopleRef.push], action.payload.person)
 
   yield put({
-    type: ADD_PERSON,
-    payload: {
-      person: { id, ...person }
-    }
+    type: ADD_PERSON_SUCCESS,
+    payload: { id: key, ...action.payload.person }
   })
 
   yield put(reset('person'))
 }
 
+export function* fetchAllSaga() {
+  const peopleRef = firebase.database().ref('people')
+  const data = yield call([peopleRef, peopleRef.once], 'value')
+
+  yield put({
+    type: FETCH_ALL_SUCCESS,
+    payload: data.val()
+  })
+}
+
+export function* deletePersonSaga({ payload }) {
+  const ref = firebase.database().ref(`people/${payload.id}`)
+
+  yield call([ref, ref.remove])
+  yield put({
+    type: DELETE_PERSON_SUCCESS,
+    payload
+  })
+}
+
 export function* saga() {
-  yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+  yield all([
+    takeEvery(ADD_PERSON_REQUEST, addPersonSaga),
+    takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
+    takeEvery(DELETE_PERSON_REQUEST, deletePersonSaga)
+  ])
 }
