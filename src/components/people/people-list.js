@@ -1,12 +1,22 @@
 import React, { Component } from 'react'
 import PersonCard from './person-card'
+import Loader from '../common/loader'
 import { connect } from 'react-redux'
-import { peopleSelector } from '../../ducks/people'
+import {
+  peopleSelector,
+  loadingSelector,
+  fetchAllPeople
+} from '../../ducks/people'
 
 class PeopleList extends Component {
   static propTypes = {}
 
+  componentDidMount() {
+    this.props.fetchAllPeople()
+  }
+
   render() {
+    if (this.props.loading) return <Loader />
     return (
       <div>
         {this.props.people.map((person) => (
@@ -17,6 +27,10 @@ class PeopleList extends Component {
   }
 }
 
-export default connect((state) => ({
-  people: peopleSelector(state)
-}))(PeopleList)
+export default connect(
+  (state) => ({
+    loading: loadingSelector(state),
+    people: peopleSelector(state)
+  }),
+  { fetchAllPeople }
+)(PeopleList)

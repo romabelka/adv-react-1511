@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
-import { Record, List, OrderedSet } from 'immutable'
+import { Record, OrderedMap, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
 import { fbToEntities } from '../services/util'
 import api from '../services/api'
@@ -30,7 +30,7 @@ export const ReducerRecord = Record({
   loading: false,
   loaded: false,
   selected: new OrderedSet([]),
-  entities: new List([])
+  entities: new OrderedMap([])
 })
 
 export const EventRecord = Record({
@@ -40,10 +40,8 @@ export const EventRecord = Record({
   title: null,
   url: null,
   when: null,
-  where: null
-  /*
+  where: null,
   peopleIds: []
-*/
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -74,8 +72,12 @@ export default function reducer(state = new ReducerRecord(), action) {
       )
 
     case ADD_PERSON_REQUEST:
-      return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
-        ids.concat(payload.personId)
+      return state.updateIn(
+        ['entities', payload.eventId, 'peopleIds'],
+        (ids) => {
+          ids.concat(payload.personId)
+          console.log('q', state)
+        }
       )
 
     default:
@@ -102,7 +104,9 @@ export const loadedSelector = createSelector(
 )
 export const eventListSelector = createSelector(
   entitiesSelector,
-  (entities) => entities.toArray()
+  (entities) => {
+    return entities.valueSeq().toArray()
+  }
 )
 export const selectedIdsSelector = createSelector(
   stateSelector,
@@ -136,6 +140,8 @@ export function fetchLazy() {
     type: FETCH_LAZY_REQUEST
   }
 }
+
+export function deleteEvent(eventId) {}
 
 export function addPersonToEvent(personId, eventId) {
   return {

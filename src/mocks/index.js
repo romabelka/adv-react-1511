@@ -1,4 +1,5 @@
 import conferences from './conferences'
+import people from './people'
 import firebase from 'firebase/app'
 
 export function saveEventsToFB() {
@@ -6,4 +7,11 @@ export function saveEventsToFB() {
   conferences.forEach((conference) => eventsRef.push(conference))
 }
 
+export function savePeopleToFB() {
+  const eventsRef = firebase.database().ref('/people')
+  people.forEach((person) => eventsRef.push(person))
+}
+
 window.saveEventsToFB = saveEventsToFB
+
+window.savePeopleToFB = savePeopleToFB
