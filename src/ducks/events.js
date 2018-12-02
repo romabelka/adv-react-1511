@@ -25,6 +25,9 @@ export const FETCH_LAZY_SUCCESS = `${prefix}/FETCH_LAZY_SUCCESS`
 export const ADD_PERSON_TO_EVENT_REQUEST = `${prefix}/ADD_PERSON_TO_EVENT_REQUEST`
 export const ADD_PERSON_TO_EVENT_SUCCESS = `${prefix}/ADD_PERSON_TO_EVENT_SUCCESS`
 
+export const DELETE_EVENT_REQUEST = `${prefix}/DELETE_EVENT_REQUEST`
+export const DELETE_EVENT_SUCCESS = `${prefix}/DELETE_EVENT_SUCCESS`
+
 /**
  * Reducer
  * */
@@ -86,6 +89,10 @@ export default function reducer(state = new ReducerRecord(), action) {
         ids.add(payload.personId)
       )
 
+    case DELETE_EVENT_SUCCESS:
+      return state
+        .removeIn(['selected', payload.eventId])
+        .removeIn(['entities', payload.eventId])
     default:
       return state
   }
@@ -166,6 +173,15 @@ export function addPersonToEvent(personId, eventId) {
   }
 }
 
+export function deleteEvent(eventId) {
+  return {
+    type: DELETE_EVENT_REQUEST,
+    payload: {
+      eventId
+    }
+  }
+}
+
 /**
  * Sagas
  * */
@@ -240,11 +256,27 @@ export const deletePersonFromEventSaga = function*(personId, eventId) {
   }
 }
 
+export const deleteEventSaga = function*(action) {
+  const {
+    payload: { eventId }
+  } = action
+
+  yield call(api.delete, ['events', eventId])
+
+  yield put({
+    type: DELETE_EVENT_SUCCESS,
+    payload: {
+      eventId
+    }
+  })
+}
+
 export function* saga() {
   yield all([
     takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
     takeEvery(FETCH_LAZY_REQUEST, fetchLazySaga),
     takeEvery(ADD_PERSON_TO_EVENT_REQUEST, addPersonToEventSaga),
-    takeEvery(DELETE_PERSON_REQUEST, deletePersonFromEventsSaga)
+    takeEvery(DELETE_PERSON_REQUEST, deletePersonFromEventsSaga),
+    takeEvery(DELETE_EVENT_REQUEST, deleteEventSaga)
   ])
 }
