@@ -1,23 +1,45 @@
-import React, { Component } from 'react'
+import { Component } from 'react'
+import { DragSource } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
+import DragPreview from './event-dnd-preview'
+import { connect } from 'react-redux'
+import { deleteEvent } from '../../ducks/events'
+import { defaultTableRowRenderer } from 'react-virtualized'
 
 class EventTableRow extends Component {
   static propTypes = {}
 
-  render() {
-    const { event } = this.props
-    return (
-      <tr className="test--events-table__row" onClick={this.handleClick}>
-        <td>{event.title}</td>
-        <td>{event.when}</td>
-        <td>{event.where}</td>
-      </tr>
-    )
+  componentDidMount() {
+    this.props.connectPreview(getEmptyImage())
   }
 
-  handleClick = () => {
+  render() {
+    const { connectDragSource, ...rest } = this.props
+    return connectDragSource(defaultTableRowRenderer(rest))
+  }
+
+  handleDelete = () => {
     const { onClick, event } = this.props
     onClick(event.id)
   }
 }
 
-export default EventTableRow
+const spec = {
+  beginDrag(props) {
+    return {
+      id: props.rowData.id,
+      DragPreview
+    }
+  }
+}
+
+const collect = (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+  connectPreview: connect.dragPreview()
+})
+
+export default connect(
+  null,
+  { deleteEvent }
+)(DragSource('event', spec, collect)(EventTableRow))

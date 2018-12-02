@@ -11,6 +11,6 @@ class PersonDndPreview extends Component {
   }
 }
 
-export default connect((state, ownProps) => ({
-  person: personSelector(state, ownProps)
+export default connect((state, props) => ({
+  person: personSelector(state, props)
 }))(PersonDndPreview)
