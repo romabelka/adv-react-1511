@@ -9,6 +9,7 @@ import {
 } from '../../ducks/events'
 import { Table, Column, InfiniteLoader } from 'react-virtualized'
 import 'react-virtualized/styles.css'
+import EventTableRow from './events-table-row'
 
 export class EventLazyTable extends Component {
   static propTypes = {}
@@ -38,6 +39,7 @@ export class EventLazyTable extends Component {
             onRowClick={this.handleSelect}
             onRowsRendered={onRowsRendered}
             rowClassName="test__event_table_row"
+            rowRenderer={this.useRowRenderer}
           >
             <Column dataKey="title" width={200} label="Title" />
             <Column dataKey="where" width={200} label="Place" />
@@ -57,6 +59,8 @@ export class EventLazyTable extends Component {
   rowGetter = ({ index }) => this.props.events[index]
 
   handleSelect = ({ rowData }) => this.props.selectEvent(rowData.id)
+
+  useRowRenderer = (row) => <EventTableRow {...row} /> //
 }
 
 export default connect(
