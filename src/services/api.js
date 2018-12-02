@@ -27,6 +27,20 @@ class ApiService {
       .once('value')
       .then((data) => data.val())
 
+  savePerson = (person) =>
+    this.fb
+      .database()
+      .ref('people')
+      .push(person)
+      .then((data) => data.key)
+
+  addPersonToEvent = (eventId, peopleIds) =>
+    this.fb
+      .database()
+      .ref(`events/${eventId}/peopleIds`)
+      .set(peopleIds)
+      .then((data) => data)
+
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
 

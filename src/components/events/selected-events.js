@@ -7,25 +7,39 @@ import SelectedEventCard from './selected-event-card'
 class SelectedEvents extends Component {
   static propTypes = {}
 
+  componentWillUpdate() {
+    this.refs.forceUpdateGrid()
+  }
+
   render() {
     return (
-      <List
-        width={400}
-        height={300}
-        rowCount={this.props.events.length}
-        rowHeight={150}
-        rowRenderer={this.rowRenderer}
-      />
+      <div>
+        <List
+          ref={(ref) => (this.refs = ref)}
+          width={400}
+          height={300}
+          rowCount={this.props.events.length}
+          rowHeight={150}
+          rowRenderer={this.rowRenderer}
+        />
+      </div>
     )
   }
 
-  rowRenderer = ({ index, key, style }) => (
-    <div key={key} style={style}>
-      <SelectedEventCard event={this.props.events[index]} />
-    </div>
-  )
+  rowRenderer = ({ index, key, style }) => {
+    return (
+      <div key={key} style={style}>
+        <SelectedEventCard event={this.props.events[index]} />
+      </div>
+    )
+  }
 }
 
-export default connect((state) => ({
-  events: selectedEventsSelector(state)
-}))(SelectedEvents)
+export default connect(
+  (state) => ({
+    events: selectedEventsSelector(state)
+  }),
+  null,
+  null,
+  { pure: false }
+)(SelectedEvents)
