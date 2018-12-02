@@ -20,6 +20,9 @@ export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
 export const ADD_PERSON_SUCCESS = `${prefix}/ADD_PERSON_SUCCESS`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 
+export const DELETE_PERSON_REQUEST = `${prefix}/DELETE_PERSON_REQUEST`
+export const DELETE_PERSON_SUCCESS = `${prefix}/DELETE_PERSON_SUCCESS`
+
 /**
  * Reducer
  * */
@@ -53,6 +56,9 @@ export default function reducer(state = new ReducerState(), action) {
         ['entities', payload.person.id],
         createPersonRecord(payload.person)
       )
+
+    case DELETE_PERSON_SUCCESS:
+      return state.removeIn(['entities', payload.id])
 
     default:
       return state
@@ -88,10 +94,18 @@ export function fetchAllPeople() {
     type: FETCH_ALL_REQUEST
   }
 }
+
 export function addPerson(person) {
   return {
     type: ADD_PERSON_REQUEST,
     payload: { person }
+  }
+}
+
+export function deletePerson(id) {
+  return {
+    type: DELETE_PERSON_REQUEST,
+    payload: { id }
   }
 }
 
@@ -107,7 +121,7 @@ export function* fetchAllSaga() {
 
   yield put({
     type: FETCH_ALL_SUCCESS,
-    payload: data
+    payload: data || []
   })
 }
 
@@ -128,9 +142,23 @@ export function* addPersonSaga(action) {
   yield put(reset('person'))
 }
 
+export function* deletePersonSaga(action) {
+  const { id } = action.payload
+
+  yield call(api.delete, ['people', id])
+
+  yield put({
+    type: DELETE_PERSON_SUCCESS,
+    payload: {
+      id
+    }
+  })
+}
+
 export function* saga() {
   yield all([
     yield takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
-    yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+    yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga),
+    yield takeEvery(DELETE_PERSON_REQUEST, deletePersonSaga)
   ])
 }

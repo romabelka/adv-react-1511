@@ -4,6 +4,7 @@ import { Record, OrderedMap, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
 import { fbToEntities, mapToImmutableMap } from '../services/util'
 import api from '../services/api'
+import { DELETE_PERSON_REQUEST } from './people'
 
 /**
  * Constants
@@ -97,9 +98,14 @@ export default function reducer(state = new ReducerRecord(), action) {
 export const stateSelector = (state) => state[moduleName]
 export const idSelector = (_, props) => props.id
 
-export const entitiesMapSelector = createSelector(
+export const eventsMapSelector = createSelector(
   stateSelector,
   (state) => state.entities
+)
+export const eventByIdSelector = createSelector(
+  stateSelector,
+  idSelector,
+  (state, id) => state.entities.get(id)
 )
 export const loadingSelector = createSelector(
   stateSelector,
@@ -110,13 +116,12 @@ export const loadedSelector = createSelector(
   (state) => state.loaded
 )
 export const eventListSelector = createSelector(
-  entitiesMapSelector,
+  eventsMapSelector,
   (entities) => entities.valueSeq().toArray()
 )
 export const peopleIdsByEntityIdSelector = createSelector(
-  entitiesMapSelector,
-  idSelector,
-  (entities, id) => entities.get(id).peopleIds
+  eventByIdSelector,
+  (event) => event.peopleIds
 )
 export const selectedIdsSelector = createSelector(
   stateSelector,
@@ -215,10 +220,31 @@ export const addPersonToEventSaga = function*({
   })
 }
 
+export const deletePersonFromEventsSaga = function*(action) {
+  const {
+    payload: { id: personId }
+  } = action
+
+  const events = yield select(eventListSelector)
+
+  yield all(
+    events.map((event) => deletePersonFromEventSaga(personId, event.id))
+  )
+}
+
+export const deletePersonFromEventSaga = function*(personId, eventId) {
+  const peopleIds = yield select(peopleIdsByEntityIdSelector, { id: eventId })
+
+  if (peopleIds.has(personId)) {
+    yield call(api.delete, ['events', eventId, 'peopleIds', personId])
+  }
+}
+
 export function* saga() {
   yield all([
     takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
     takeEvery(FETCH_LAZY_REQUEST, fetchLazySaga),
-    takeEvery(ADD_PERSON_TO_EVENT_REQUEST, addPersonToEventSaga)
+    takeEvery(ADD_PERSON_TO_EVENT_REQUEST, addPersonToEventSaga),
+    takeEvery(DELETE_PERSON_REQUEST, deletePersonFromEventsSaga)
   ])
 }
