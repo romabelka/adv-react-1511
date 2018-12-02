@@ -27,6 +27,9 @@ export const ADD_PERSON = `${prefix}/ADD_PERSON`
 export const CLEAN_EVENT_REQUEST = `${prefix}/CLEAN_EVENT_REQUEST`
 export const CLEAN_EVENT = `${prefix}/CLEAN_EVENT`
 
+export const DELETE_EVENT_REQUEST = `${prefix}/DELETE_EVENT_REQUEST`
+export const DELETE_EVENT = `${prefix}/DELETE_EVENT`
+
 /**
  * Reducer
  * */
@@ -121,6 +124,12 @@ export const selectedEventsSelector = createSelector(
   selectedIdsSelector,
   (entities, ids) => entities.filter((event) => ids.has(event.id))
 )
+export const idSelector = (_, props) => props.id
+export const eventSelector = createSelector(
+  eventListSelector,
+  idSelector,
+  (entities, id) => entities.find((event) => event.id === id)
+)
 
 /**
  * Action Creators
@@ -155,6 +164,14 @@ export function addPersonToEvent(personId, eventId) {
 export function cleanEvent(eventId) {
   return {
     type: CLEAN_EVENT_REQUEST,
+    payload: { eventId }
+  }
+}
+
+export function deleteEvent(eventId) {
+  console.log('deleteEvent', eventId)
+  return {
+    type: DELETE_EVENT_REQUEST,
     payload: { eventId }
   }
 }

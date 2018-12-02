@@ -1,16 +1,27 @@
 import React, { Component } from 'react'
+import { DragSource } from 'react-dnd'
+import { getEmptyImage } from 'react-dnd-html5-backend'
+import DragPreview from './event-dnd-preview'
 
 class EventTableRow extends Component {
   static propTypes = {}
 
+  componentDidMount() {
+    this.props.dragPreview(getEmptyImage())
+  }
+
   render() {
-    const { event } = this.props
-    return (
-      <tr className="test--events-table__row" onClick={this.handleClick}>
-        <td>{event.title}</td>
-        <td>{event.when}</td>
-        <td>{event.where}</td>
-      </tr>
+    const { event, connectDragSource, isDragging, className } = this.props
+    return connectDragSource(
+      <div
+        className={className}
+        style={{ opacity: isDragging ? 0.2 : 1, display: 'flex' }}
+        onClick={this.handleClick}
+      >
+        <div>{event.title}</div>
+        <div>{event.when}</div>
+        <div>{event.where}</div>
+      </div>
     )
   }
 
@@ -20,4 +31,19 @@ class EventTableRow extends Component {
   }
 }
 
-export default EventTableRow
+const spec = {
+  beginDrag(props) {
+    return {
+      id: props.event.id,
+      DragPreview
+    }
+  }
+}
+
+const collect = (connect, monitor) => ({
+  connectDragSource: connect.dragSource(),
+  isDragging: monitor.isDragging(),
+  dragPreview: connect.dragPreview()
+})
+
+export default DragSource('event', spec, collect)(EventTableRow)

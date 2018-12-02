@@ -13,6 +13,9 @@ const prefix = `${appName}/${moduleName}`
 export const ADD_PERSON = `${prefix}/ADD_PERSON`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 
+export const DELETE_PERSON = `${prefix}/DELETE_PERSON`
+export const DELETE_PERSON_REQUEST = `${prefix}/DELETE_PERSON_REQUEST`
+
 /**
  * Reducer
  * */
@@ -79,6 +82,14 @@ export function addPerson(person) {
   return {
     type: ADD_PERSON_REQUEST,
     payload: { person }
+  }
+}
+
+export function deletePerson(personId) {
+  console.log('deletePerson', personId)
+  return {
+    type: DELETE_PERSON_REQUEST,
+    payload: { personId }
   }
 }
 
