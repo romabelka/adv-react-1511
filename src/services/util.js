@@ -11,3 +11,11 @@ export function fbToEntities(values, DataRecord) {
     )
   )
 }
+
+export function fbToPeople(values, DataRecord) {
+  return new List(
+    Object.entries(values).map(
+      ([id, value]) => new DataRecord({ id, ...value })
+    )
+  )
+}

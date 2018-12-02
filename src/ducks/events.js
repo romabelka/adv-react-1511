@@ -114,6 +114,13 @@ export const selectedEventsSelector = createSelector(
   (entities, ids) => entities.filter((event) => ids.has(event.id))
 )
 
+export const idSelector = (_, props) => props.id
+export const eventSelector = createSelector(
+  eventListSelector,
+  idSelector,
+  (list, id) => list.find((event) => event.id === id)
+)
+
 /**
  * Action Creators
  * */
