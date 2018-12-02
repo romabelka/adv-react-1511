@@ -16,6 +16,12 @@ class ApiService {
       .ref('people/' + id)
       .set(person)
 
+  addPersonToEvent = (personId, eventId) =>
+    this.fb
+      .database()
+      .ref(`events/${eventId}/peopleIds`)
+      .push(personId)
+
   fetchAll = (refName) =>
     this.fb
       .database()

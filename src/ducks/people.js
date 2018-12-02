@@ -4,7 +4,7 @@ import { reset } from 'redux-form'
 import { createSelector } from 'reselect'
 import { call, put, takeEvery, all } from 'redux-saga/effects'
 import { generateId } from '../services/util'
-import { fbMapToImmutableMap } from '../services/util'
+import { mapToImmutableMap } from '../services/util'
 import api from '../services/api'
 
 /**
@@ -17,7 +17,7 @@ export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
 export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
 export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
 
-export const ADD_PERSON = `${prefix}/ADD_PERSON`
+export const ADD_PERSON_SUCCESS = `${prefix}/ADD_PERSON_SUCCESS`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 
 /**
@@ -35,6 +35,10 @@ const ReducerState = Record({
   entities: new OrderedMap()
 })
 
+function createPersonRecord(data) {
+  return new PersonRecord(data)
+}
+
 export default function reducer(state = new ReducerState(), action) {
   const { type, payload } = action
 
@@ -42,12 +46,12 @@ export default function reducer(state = new ReducerState(), action) {
     case FETCH_ALL_SUCCESS:
       return state.mergeIn(
         ['entities'],
-        fbMapToImmutableMap(payload, PersonRecord)
+        mapToImmutableMap(payload, createPersonRecord)
       )
-    case ADD_PERSON:
+    case ADD_PERSON_SUCCESS:
       return state.setIn(
         ['entities', payload.person.id],
-        new PersonRecord(payload.person)
+        createPersonRecord(payload.person)
       )
 
     default:
@@ -115,7 +119,7 @@ export function* addPersonSaga(action) {
   yield call(api.addPerson, id, person)
 
   yield put({
-    type: ADD_PERSON,
+    type: ADD_PERSON_SUCCESS,
     payload: {
       person: { id, ...person }
     }
