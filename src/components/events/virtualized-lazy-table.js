@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
+import TableRow from './events-table-row'
 import {
   loadingSelector,
   loadedSelector,
@@ -18,7 +19,7 @@ export class EventLazyTable extends Component {
   }
 
   render() {
-    const { loaded, events } = this.props
+    const { loaded, events, isDragging } = this.props
     return (
       <InfiniteLoader
         isRowLoaded={this.isRowLoaded}
@@ -35,8 +36,9 @@ export class EventLazyTable extends Component {
             overscanRowCount={1}
             width={600}
             height={300}
-            onRowClick={this.handleSelect}
+            //onRowClick={this.handleSelect}
             onRowsRendered={onRowsRendered}
+            rowRenderer={this.rowRenderer}
             rowClassName="test__event_table_row"
           >
             <Column dataKey="title" width={200} label="Title" />
@@ -56,7 +58,20 @@ export class EventLazyTable extends Component {
 
   rowGetter = ({ index }) => this.props.events[index]
 
-  handleSelect = ({ rowData }) => this.props.selectEvent(rowData.id)
+  rowRenderer = (props) => {
+    const { index, className } = props
+    const event = this.rowGetter(props)
+    return (
+      <TableRow
+        event={event}
+        className={className}
+        key={index}
+        onClick={this.handleSelect}
+      />
+    )
+  }
+
+  handleSelect = (id) => this.props.selectEvent(id)
 }
 
 export default connect(

@@ -17,6 +17,13 @@ class ApiService {
       .once('value')
       .then((res) => res.val())
 
+  fetchAllPeople = () =>
+    this.fb
+      .database()
+      .ref('people')
+      .once('value')
+      .then((res) => res.val())
+
   fetchLazyEvents = (id = '') =>
     this.fb
       .database()
@@ -26,6 +33,34 @@ class ApiService {
       .startAt(id)
       .once('value')
       .then((data) => data.val())
+
+  addPerson = (person) =>
+    this.fb
+      .database()
+      .ref('people')
+      .push(person)
+      .then((data) => data.key)
+
+  addPersonToEvent = (eventId, peopleIds) =>
+    this.fb
+      .database()
+      .ref(`events/${eventId}/peopleIds`)
+      .set(peopleIds)
+      .then((data) => data)
+
+  deletePerson = (personId) =>
+    this.fb
+      .database()
+      .ref(`people/${personId}`)
+      .remove()
+      .then((data) => data)
+
+  deleteEvent = (eventId) =>
+    this.fb
+      .database()
+      .ref(`events/${eventId}`)
+      .remove()
+      .then((data) => data)
 
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }
