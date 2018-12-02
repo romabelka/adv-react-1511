@@ -1,13 +1,12 @@
-import { List } from 'immutable'
+import { OrderedMap, Map } from 'immutable'
 
 export function generateId() {
   return Date.now()
 }
 
-export function fbToEntities(values, DataRecord) {
-  return new List(
-    Object.entries(values).map(
-      ([id, value]) => new DataRecord({ id, ...value })
-    )
-  )
+export function fbToEntities(data, RecordModel = Map) {
+  return new OrderedMap(data).mapEntries(([id, value]) => [
+    id,
+    new RecordModel({ id, ...value })
+  ]) //.set('id', id)]
 }
