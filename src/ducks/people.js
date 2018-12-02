@@ -1,15 +1,22 @@
 import { appName } from '../config'
-import { Record, List } from 'immutable'
+import { Record, OrderedMap } from 'immutable'
 import { reset } from 'redux-form'
 import { createSelector } from 'reselect'
-import { call, put, takeEvery } from 'redux-saga/effects'
+import { call, put, takeEvery, all } from 'redux-saga/effects'
 import { generateId } from '../services/util'
+import { fbMapToImmutableMap } from '../services/util'
+import api from '../services/api'
 
 /**
  * Constants
  * */
 export const moduleName = 'people'
 const prefix = `${appName}/${moduleName}`
+
+export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
+export const FETCH_ALL_START = `${prefix}/FETCH_ALL_START`
+export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
+
 export const ADD_PERSON = `${prefix}/ADD_PERSON`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 
@@ -25,29 +32,22 @@ const PersonRecord = Record({
 })
 
 const ReducerState = Record({
-  entities: new List([
-    new PersonRecord({
-      id: 1,
-      firstName: 'Roma',
-      lastName: 'Yakobchuk',
-      email: 'qwer@awsd.com'
-    }),
-    new PersonRecord({
-      id: 2,
-      firstName: 'Ilya',
-      lastName: 'Kantor',
-      email: 'qwer@aksdfhg.com'
-    })
-  ])
+  entities: new OrderedMap()
 })
 
 export default function reducer(state = new ReducerState(), action) {
   const { type, payload } = action
 
   switch (type) {
+    case FETCH_ALL_SUCCESS:
+      return state.mergeIn(
+        ['entities'],
+        fbMapToImmutableMap(payload, PersonRecord)
+      )
     case ADD_PERSON:
-      return state.update('entities', (entities) =>
-        entities.push(new PersonRecord(payload.person))
+      return state.setIn(
+        ['entities', payload.person.id],
+        new PersonRecord(payload.person)
       )
 
     default:
@@ -59,22 +59,31 @@ export default function reducer(state = new ReducerState(), action) {
  * */
 
 export const stateSelector = (state) => state[moduleName]
-export const peopleSelector = createSelector(
+export const peopleMapSelector = createSelector(
   stateSelector,
-  (state) => state.entities.valueSeq().toArray()
+  (state) => state.entities
+)
+export const peopleListSelector = createSelector(
+  peopleMapSelector,
+  (people) => people.valueSeq().toArray()
 )
 
 export const idSelector = (_, props) => props.id
 export const personSelector = createSelector(
-  peopleSelector,
+  peopleMapSelector,
   idSelector,
-  (list, id) => list.find((person) => person.id === id)
+  (people, id) => people.get(id)
 )
 
 /**
  * Action Creators
  * */
 
+export function fetchAllPeople() {
+  return {
+    type: FETCH_ALL_REQUEST
+  }
+}
 export function addPerson(person) {
   return {
     type: ADD_PERSON_REQUEST,
@@ -85,11 +94,25 @@ export function addPerson(person) {
 /**
  * Sagas
  **/
+export function* fetchAllSaga() {
+  yield put({
+    type: FETCH_ALL_START
+  })
+
+  const data = yield call(api.fetchAll, 'people')
+
+  yield put({
+    type: FETCH_ALL_SUCCESS,
+    payload: data
+  })
+}
 
 export function* addPersonSaga(action) {
   const { person } = action.payload
 
   const id = yield call(generateId)
+
+  yield call(api.addPerson, id, person)
 
   yield put({
     type: ADD_PERSON,
@@ -102,5 +125,8 @@ export function* addPersonSaga(action) {
 }
 
 export function* saga() {
-  yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+  yield all([
+    yield takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
+    yield takeEvery(ADD_PERSON_REQUEST, addPersonSaga)
+  ])
 }

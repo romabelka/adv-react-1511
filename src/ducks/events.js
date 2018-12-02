@@ -156,7 +156,7 @@ export function* fetchAllSaga() {
     type: FETCH_ALL_START
   })
 
-  const data = yield call(api.fetchAllEvents)
+  const data = yield call(api.fetchAll, 'events')
 
   yield put({
     type: FETCH_ALL_SUCCESS,
