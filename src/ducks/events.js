@@ -88,6 +88,10 @@ export default function reducer(state = new ReducerRecord(), action) {
         ['entities', payload.eventId, 'peopleIds'],
         (ids) => []
       )
+    case DELETE_EVENT:
+      return state.update('entities', (entities) =>
+        entities.delete(payload.eventId)
+      )
 
     default:
       return state
@@ -168,11 +172,10 @@ export function cleanEvent(eventId) {
   }
 }
 
-export function deleteEvent(eventId) {
-  console.log('deleteEvent', eventId)
+export function deleteEvent({ id }) {
   return {
     type: DELETE_EVENT_REQUEST,
-    payload: { eventId }
+    payload: { eventId: id }
   }
 }
 
@@ -253,11 +256,25 @@ export const cleanEventSaga = function*(action) {
   })
 }
 
+export function* deleteEventSaga(action) {
+  const { eventId } = action.payload
+
+  yield call(api.deleteEvent, eventId)
+
+  yield put({
+    type: DELETE_EVENT,
+    payload: {
+      eventId
+    }
+  })
+}
+
 export function* saga() {
   yield all([
     takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
     takeEvery(FETCH_LAZY_REQUEST, fetchLazySaga),
     takeEvery(ADD_PERSON_TO_EVENT_REQUEST, addPersonToEventSaga),
-    takeEvery(CLEAN_EVENT_REQUEST, cleanEventSaga)
+    takeEvery(CLEAN_EVENT_REQUEST, cleanEventSaga),
+    takeEvery(DELETE_EVENT_REQUEST, deleteEventSaga)
   ])
 }
