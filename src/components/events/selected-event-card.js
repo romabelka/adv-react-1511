@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { DropTarget } from 'react-dnd'
 import { connect } from 'react-redux'
 import { addPersonToEvent } from '../../ducks/events'
+import { peopleByIdsSelector } from '../../ducks/people'
 
 class SelectedEventCard extends Component {
   static propTypes = {}
@@ -21,14 +22,19 @@ class SelectedEventCard extends Component {
       >
         <h3>{event.title}</h3>
         <h4>{event.where}</h4>
+        {this.getPeopleList()}
       </div>
     )
+  }
+
+  getPeopleList() {
+    return <h4>{this.props.people.map((person) => person.email).join('; ')}</h4>
   }
 }
 
 const spec = {
   drop(props, monitor) {
-    props.addPersonToEvent(monitor.getItem(), props.event.id)
+    props.addPersonToEvent(monitor.getItem().id, props.event.id)
   }
 }
 
@@ -39,6 +45,8 @@ const collect = (connect, monitor) => ({
 })
 
 export default connect(
-  null,
+  (state, { event }) => ({
+    people: peopleByIdsSelector(state, event.peopleIds)
+  }),
   { addPersonToEvent }
 )(DropTarget(['person'], spec, collect)(SelectedEventCard))

@@ -7,9 +7,14 @@ import SelectedEventCard from './selected-event-card'
 class SelectedEvents extends Component {
   static propTypes = {}
 
+  componentDidUpdate() {
+    this.list.forceUpdateGrid()
+  }
+
   render() {
     return (
       <List
+        ref={this.setListRef}
         width={400}
         height={300}
         rowCount={this.props.events.length}
@@ -18,6 +23,8 @@ class SelectedEvents extends Component {
       />
     )
   }
+
+  setListRef = (ref) => (this.list = ref)
 
   rowRenderer = ({ index, key, style }) => (
     <div key={key} style={style}>
