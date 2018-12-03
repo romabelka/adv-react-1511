@@ -126,6 +126,13 @@ export const selectedEventsSelector = createSelector(
   (entities, ids) => ids.toArray().map((id) => entities.get(id))
 )
 
+export const idSelector = (state, props) => props.id
+export const eventSelector = createSelector(
+  entitiesSelector,
+  idSelector,
+  (entities, id) => entities.get(id)
+)
+
 /**
  * Action Creators
  * */
@@ -217,9 +224,11 @@ export const deleteEventSaga = function*(action) {
 
 export function* addPersonToEventSaga({ payload: { eventId, personId } }) {
   const state = yield select(entitiesSelector)
-  const peopleIds = state.getIn([eventId, 'peopleIds']).concat(personId)
+  const peopleIds = state.getIn([eventId, 'peopleIds'])
 
-  yield call(api.addPersonToEvent, eventId, peopleIds)
+  if (peopleIds.includes(personId)) return
+
+  yield call(api.addPersonToEvent, eventId, peopleIds.concat(personId))
 
   yield put({
     type: ADD_PERSON_SUCCESS,
