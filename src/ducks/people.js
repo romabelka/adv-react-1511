@@ -139,10 +139,15 @@ export function* deletePersonSaga({ payload }) {
 }
 
 export function* syncPeopleWithPolling() {
+  let firstTry = true
+
   try {
     while (true) {
+      if (!firstTry) throw new Error('some network error')
+
       yield call(fetchAllSaga)
       yield delay(2000)
+      firstTry = false
     }
   } finally {
     if (yield call(cancelled)) {
