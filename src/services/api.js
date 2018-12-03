@@ -59,6 +59,21 @@ class ApiService {
       .set(peopleIds)
 
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
+
+  peopleSubscription = (callback) => {
+    const dataCallback = (snapshot) => callback(snapshot.val())
+
+    this.fb
+      .database()
+      .ref('people')
+      .on('value', dataCallback)
+
+    return () =>
+      this.fb
+        .database()
+        .ref('people')
+        .off('value', dataCallback)
+  }
 }
 
 export default new ApiService()

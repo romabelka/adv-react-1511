@@ -8,13 +8,14 @@ import {
   fork,
   cancel,
   cancelled,
-  race
+  race,
+  take
 } from 'redux-saga/effects'
 import { reset } from 'redux-form'
 import { createSelector } from 'reselect'
 import { fbToEntities } from '../services/util'
 import api from '../services/api'
-import { delay } from 'redux-saga'
+import { delay, eventChannel } from 'redux-saga'
 
 /**
  * Constants
@@ -27,6 +28,8 @@ export const ADD_PERSON_SUCCESS = `${prefix}/ADD_PERSON_SUCCESS`
 
 export const FETCH_ALL_REQUEST = `${prefix}/FETCH_ALL_REQUEST`
 export const FETCH_ALL_SUCCESS = `${prefix}/FETCH_ALL_SUCCESS`
+
+export const REALTIME_FETCH_ALL_SUCCESS = `${prefix}/REALTIME_FETCH_ALL_SUCCESS`
 
 export const DELETE_PERSON_REQUEST = `${prefix}/DELETE_PERSON_REQUEST`
 export const DELETE_PERSON_SUCCESS = `${prefix}/DELETE_PERSON_SUCCESS`
@@ -52,6 +55,7 @@ export default function reducer(state = new ReducerState(), action) {
     case ADD_PERSON_SUCCESS:
       return state.setIn(['entities', payload.id], new PersonRecord(payload))
 
+    case REALTIME_FETCH_ALL_SUCCESS:
     case FETCH_ALL_SUCCESS:
       return state.set('entities', fbToEntities(payload, PersonRecord))
 
@@ -113,6 +117,8 @@ export function* addPersonSaga(action) {
     payload: { ...action.payload.person }
   })
 
+  yield call(api.addPerson, action.payload.person)
+
   yield put(reset('person'))
 }
 
@@ -169,8 +175,26 @@ export function* cancellableSyncSaga() {
 */
 }
 
+export const createPeopleChanel = () =>
+  eventChannel((emit) => api.peopleSubscription((data) => emit({ data })))
+
+export function* realtimePeopleSyncSaga() {
+  const chanel = yield call(createPeopleChanel)
+
+  while (true) {
+    const { data } = yield take(chanel)
+
+    yield put({
+      type: REALTIME_FETCH_ALL_SUCCESS,
+      payload: data
+    })
+  }
+}
+
 export function* saga() {
-  yield fork(cancellableSyncSaga)
+  //  yield fork(cancellableSyncSaga)
+
+  yield fork(realtimePeopleSyncSaga)
 
   yield all([
     takeEvery(ADD_PERSON_REQUEST, addPersonSaga),
