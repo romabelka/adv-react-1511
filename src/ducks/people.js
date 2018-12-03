@@ -12,6 +12,7 @@ export const moduleName = 'people'
 const prefix = `${appName}/${moduleName}`
 export const ADD_PERSON = `${prefix}/ADD_PERSON`
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
+export const DELETE_PERSON_REQUEST = `${prefix}/DELETE_PERSON_REQUEST`
 
 /**
  * Reducer
@@ -50,6 +51,11 @@ export default function reducer(state = new ReducerState(), action) {
         entities.push(new PersonRecord(payload.person))
       )
 
+    case DELETE_PERSON_REQUEST:
+      return state.update('entities', (entities) =>
+        entities.filter((e) => e.id !== payload.personId)
+      )
+
     default:
       return state
   }
@@ -61,7 +67,7 @@ export default function reducer(state = new ReducerState(), action) {
 export const stateSelector = (state) => state[moduleName]
 export const peopleSelector = createSelector(
   stateSelector,
-  (state) => state.entities.valueSeq().toArray()
+  (state) => state.entities.toArray()
 )
 
 export const idSelector = (_, props) => props.id
@@ -79,6 +85,15 @@ export function addPerson(person) {
   return {
     type: ADD_PERSON_REQUEST,
     payload: { person }
+  }
+}
+
+export function deletePerson(personId) {
+  return {
+    type: DELETE_PERSON_REQUEST,
+    payload: {
+      personId
+    }
   }
 }
 

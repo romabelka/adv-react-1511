@@ -8,6 +8,7 @@ import {
   toggleSelectEvent
 } from '../../ducks/events'
 import { Table, Column, InfiniteLoader } from 'react-virtualized'
+import VirtualizedTableRow from './virtualizaed-lazy-row'
 import 'react-virtualized/styles.css'
 
 export class EventLazyTable extends Component {
@@ -37,17 +38,26 @@ export class EventLazyTable extends Component {
             height={300}
             onRowClick={this.handleSelect}
             onRowsRendered={onRowsRendered}
+            rowRenderer={this.rowRenderer}
             rowClassName="test__event_table_row"
           >
             <Column dataKey="title" width={200} label="Title" />
             <Column dataKey="where" width={200} label="Place" />
-            <Column dataKey="when" width={200} label="When" />
+            <Column
+              dataKey="when"
+              width={200}
+              label="When"
+              disableSort={true}
+            />
           </Table>
         )}
       </InfiniteLoader>
     )
   }
 
+  rowRenderer = (props) => {
+    return <VirtualizedTableRow {...props} />
+  }
   isRowLoaded = ({ index }) => index < this.props.events.length
 
   loadMoreRows = () => {
