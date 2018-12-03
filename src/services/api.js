@@ -2,6 +2,8 @@ import firebase from 'firebase/app'
 import 'firebase/auth'
 import 'firebase/database'
 
+window.__fb = firebase
+
 class ApiService {
   fb = firebase
 
@@ -26,6 +28,20 @@ class ApiService {
       .startAt(id)
       .once('value')
       .then((data) => data.val())
+
+  savePerson = (user) => {
+    return this.fb
+      .database()
+      .ref(`/users/${user.id}`)
+      .set(user)
+  }
+
+  fetchAllPersons = () =>
+    this.fb
+      .database()
+      .ref('users')
+      .once('value')
+      .then((res) => res.val())
 
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 }

@@ -1,3 +1,5 @@
+import { List } from 'immutable'
+
 export function generateId() {
   return Date.now()
 }
@@ -9,4 +11,15 @@ export function fbToEntities(originMap, values, DataRecord) {
   })
 
   return originMap
+}
+
+export function fbPeopleToEntities(values, DataRecord) {
+  return new List(
+    Object.entries(values).map(([id, value]) => {
+      return new DataRecord({
+        id: id,
+        ...value
+      })
+    })
+  )
 }
