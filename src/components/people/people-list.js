@@ -6,10 +6,6 @@ import { peopleSelector, fetchAllPeople } from '../../ducks/people'
 class PeopleList extends Component {
   static propTypes = {}
 
-  componentDidMount() {
-    this.props.fetchAllPeople()
-  }
-
   render() {
     return (
       <div>

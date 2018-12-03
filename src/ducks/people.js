@@ -1,10 +1,20 @@
 import { appName } from '../config'
 import { Record, OrderedMap } from 'immutable'
-import { put, call, all, takeEvery, select } from 'redux-saga/effects'
+import {
+  put,
+  call,
+  all,
+  takeEvery,
+  fork,
+  cancel,
+  cancelled,
+  race
+} from 'redux-saga/effects'
 import { reset } from 'redux-form'
 import { createSelector } from 'reselect'
 import { fbToEntities } from '../services/util'
 import api from '../services/api'
+import { delay } from 'redux-saga'
 
 /**
  * Constants
@@ -103,13 +113,6 @@ export function* addPersonSaga(action) {
     payload: { ...action.payload.person }
   })
 
-  const { key } = yield call(api.addPerson, action.payload.person)
-
-  yield put({
-    type: ADD_PERSON_SUCCESS,
-    payload: { id: key, ...action.payload.person }
-  })
-
   yield put(reset('person'))
 }
 
@@ -135,7 +138,35 @@ export function* deletePersonSaga({ payload }) {
   } catch (_) {}
 }
 
+export function* syncPeopleWithPolling() {
+  try {
+    while (true) {
+      yield call(fetchAllSaga)
+      yield delay(2000)
+    }
+  } finally {
+    if (yield call(cancelled)) {
+      console.log('---', 'cancelled')
+    }
+  }
+}
+
+export function* cancellableSyncSaga() {
+  yield race({
+    sync: syncPeopleWithPolling(),
+    timeout: delay(5000)
+  })
+  /*
+  const syncProcess = yield fork(syncPeopleWithPolling)
+
+  yield delay(5000)
+  yield cancel(syncProcess)
+*/
+}
+
 export function* saga() {
+  yield fork(cancellableSyncSaga)
+
   yield all([
     takeEvery(ADD_PERSON_REQUEST, addPersonSaga),
     takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
