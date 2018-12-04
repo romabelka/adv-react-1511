@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
-import { Record, List, OrderedSet } from 'immutable'
+import { Record, OrderedSet, OrderedMap } from 'immutable'
 import { createSelector } from 'reselect'
 import { fbToEntities } from '../services/util'
 import api from '../services/api'
@@ -22,6 +22,10 @@ export const FETCH_LAZY_START = `${prefix}/FETCH_LAZY_START`
 export const FETCH_LAZY_SUCCESS = `${prefix}/FETCH_LAZY_SUCCESS`
 
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
+export const ADD_PERSON_SUCCESS = `${prefix}/ADD_PERSON_SUCCESS`
+
+export const DELETE_EVENT_REQUEST = `${prefix}/DELETE_EVENT_REQUEST`
+export const DELETE_EVENT_SUCCESS = `${prefix}/DELETE_EVENT_SUCCESS`
 
 /**
  * Reducer
@@ -30,7 +34,7 @@ export const ReducerRecord = Record({
   loading: false,
   loaded: false,
   selected: new OrderedSet([]),
-  entities: new List([])
+  entities: new OrderedMap()
 })
 
 export const EventRecord = Record({
@@ -40,10 +44,8 @@ export const EventRecord = Record({
   title: null,
   url: null,
   when: null,
-  where: null
-  /*
+  where: null,
   peopleIds: []
-*/
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -73,10 +75,20 @@ export default function reducer(state = new ReducerRecord(), action) {
           : selected.add(payload.id)
       )
 
-    case ADD_PERSON_REQUEST:
-      return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
-        ids.concat(payload.personId)
+    case ADD_PERSON_SUCCESS:
+      return state.setIn(
+        ['entities', payload.eventId, 'peopleIds'],
+        payload.peopleIds
       )
+
+    case DELETE_EVENT_REQUEST:
+      return state.set('loading', true)
+
+    case DELETE_EVENT_SUCCESS:
+      return state
+        .set('loading', false)
+        .deleteIn(['entities', payload.id])
+        .update('selected', (selected) => selected.remove(payload.id))
 
     default:
       return state
@@ -102,16 +114,23 @@ export const loadedSelector = createSelector(
 )
 export const eventListSelector = createSelector(
   entitiesSelector,
-  (entities) => entities.toArray()
+  (entities) => entities.valueSeq().toArray()
 )
 export const selectedIdsSelector = createSelector(
   stateSelector,
   (state) => state.selected
 )
 export const selectedEventsSelector = createSelector(
-  eventListSelector,
+  entitiesSelector,
   selectedIdsSelector,
-  (entities, ids) => entities.filter((event) => ids.has(event.id))
+  (entities, ids) => ids.toArray().map((id) => entities.get(id))
+)
+
+export const idSelector = (state, props) => props.id
+export const eventSelector = createSelector(
+  entitiesSelector,
+  idSelector,
+  (entities, id) => entities.get(id)
 )
 
 /**
@@ -144,6 +163,13 @@ export function addPersonToEvent(personId, eventId) {
       personId,
       eventId
     }
+  }
+}
+
+export function deleteEvent(id) {
+  return {
+    type: DELETE_EVENT_REQUEST,
+    payload: { id }
   }
 }
 
@@ -183,9 +209,39 @@ export const fetchLazySaga = function*() {
   })
 }
 
+export const deleteEventSaga = function*(action) {
+  const { payload } = action
+
+  try {
+    yield call(api.deleteEvent, payload.id)
+
+    yield put({
+      type: DELETE_EVENT_SUCCESS,
+      payload
+    })
+  } catch (_) {}
+}
+
+export function* addPersonToEventSaga({ payload: { eventId, personId } }) {
+  const state = yield select(entitiesSelector)
+  const currentPeopleIds = state.getIn([eventId, 'peopleIds'])
+
+  if (currentPeopleIds.includes(personId)) return
+  const peopleIds = currentPeopleIds.concat(personId)
+
+  yield call(api.addPersonToEvent, eventId, peopleIds)
+
+  yield put({
+    type: ADD_PERSON_SUCCESS,
+    payload: { peopleIds, eventId }
+  })
+}
+
 export function* saga() {
   yield all([
     takeEvery(FETCH_ALL_REQUEST, fetchAllSaga),
-    takeEvery(FETCH_LAZY_REQUEST, fetchLazySaga)
+    takeEvery(FETCH_LAZY_REQUEST, fetchLazySaga),
+    takeEvery(DELETE_EVENT_REQUEST, deleteEventSaga),
+    takeEvery(ADD_PERSON_REQUEST, addPersonToEventSaga)
   ])
 }
