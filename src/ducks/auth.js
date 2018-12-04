@@ -2,8 +2,16 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
-import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  select,
+  take,
+  fork
+} from 'redux-saga/effects'
+import { delay, eventChannel, buffers } from 'redux-saga'
 
 /**
  * Constants
@@ -65,13 +73,13 @@ export const isAuthorizedSelector = createSelector(
  * Init logic
  */
 
-api.onAuthStateChanged((user) => {
-  window.store &&
-    window.store.dispatch({
-      type: SIGN_IN_SUCCESS,
-      payload: { user }
-    })
-})
+// api.onAuthStateChanged((user) => {
+//   window.store &&
+//     window.store.dispatch({
+//       type: SIGN_IN_SUCCESS,
+//       payload: { user }
+//     })
+// })
 
 /**
  * Action Creators
@@ -150,6 +158,50 @@ export function* signUpSaga({ payload: { email, password } }) {
   }
 }
 
+export const isAppInitialized = () => {
+  return typeof window !== 'undefined'
+}
+
+export const createAuthStateChangedChannel = () =>
+  eventChannel(
+    (emit) =>
+      api.onAuthStateChanged(
+        (user) => emit({ data: user }),
+        (authError) => emit({ error: authError })
+      ),
+    buffers.dropping(100)
+  )
+
+export function* onAuthChangedSaga() {
+  const channel = yield call(createAuthStateChangedChannel)
+
+  while (true) {
+    const { data, error } = yield take(channel)
+
+    try {
+      if (data) {
+        yield put({
+          type: SIGN_IN_SUCCESS,
+          payload: { user: data }
+        })
+      }
+
+      if (error) {
+        yield put({
+          type: SIGN_IN_ERROR,
+          payload: { error }
+        })
+      }
+    } catch (e) {
+      yield put({
+        type: SIGN_IN_ERROR,
+        payload: { error }
+      })
+    }
+  }
+}
+
 export function* saga() {
+  yield fork(onAuthChangedSaga)
   yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
 }
