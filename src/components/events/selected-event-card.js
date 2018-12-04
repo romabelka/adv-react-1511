@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { DropTarget } from 'react-dnd'
 import { connect } from 'react-redux'
+import { Motion, spring } from 'react-motion'
 import { addPersonToEvent } from '../../ducks/events'
 import { peopleByIdsSelector } from '../../ducks/people'
 
@@ -11,19 +12,40 @@ class SelectedEventCard extends Component {
     const { event, dropTarget, canDrop, isOver } = this.props
     const borderColor = canDrop ? (isOver ? 'red' : 'green') : 'black'
 
-    return dropTarget(
-      <div
+    return (
+      <Motion
+        defaultStyle={{
+          opacityVal: 0,
+          rotate: 10,
+          translateX: -15,
+          translateY: -30
+        }}
         style={{
-          width: 400,
-          height: 150,
-          border: `1px solid ${borderColor}`,
-          boxSizing: 'border-box'
+          opacityVal: spring(1),
+          translateX: spring(0),
+          translateY: spring(0, { stiffness: 150, damping: 10 }),
+          rotate: spring(0)
         }}
       >
-        <h3>{event.title}</h3>
-        <h4>{event.where}</h4>
-        {this.getPeopleList()}
-      </div>
+        {({ opacityVal, translateX, translateY, rotate }) =>
+          dropTarget(
+            <div
+              style={{
+                width: 400,
+                height: 150,
+                border: `1px solid ${borderColor}`,
+                boxSizing: 'border-box',
+                opacity: opacityVal,
+                transform: `translate3d(${translateX}px, ${translateY}px, 0) rotateZ(${rotate}deg)`
+              }}
+            >
+              <h3>{event.title}</h3>
+              <h4>{event.where}</h4>
+              {this.getPeopleList()}
+            </div>
+          )
+        }
+      </Motion>
     )
   }
 
