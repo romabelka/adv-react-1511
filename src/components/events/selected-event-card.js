@@ -28,7 +28,7 @@ class SelectedEventCard extends Component {
 
 const spec = {
   drop(props, monitor) {
-    props.addPersonToEvent(monitor.getItem().id, props.event.id)
+    props.addPersonToEvent(monitor.getItem(), props.event.id)
   }
 }
 

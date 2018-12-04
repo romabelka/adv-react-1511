@@ -1,6 +1,6 @@
 import { all, takeEvery, put, call, select } from 'redux-saga/effects'
 import { appName } from '../config'
-import { Record, OrderedSet, OrderedMap } from 'immutable'
+import { Record, List, OrderedSet } from 'immutable'
 import { createSelector } from 'reselect'
 import { fbToEntities } from '../services/util'
 import api from '../services/api'
@@ -30,7 +30,7 @@ export const ReducerRecord = Record({
   loading: false,
   loaded: false,
   selected: new OrderedSet([]),
-  entities: new OrderedMap() // <eventId, event>
+  entities: new List([])
 })
 
 export const EventRecord = Record({
@@ -40,8 +40,10 @@ export const EventRecord = Record({
   title: null,
   url: null,
   when: null,
-  where: null,
-  peopleIds: new OrderedSet()
+  where: null
+  /*
+  peopleIds: []
+*/
 })
 
 export default function reducer(state = new ReducerRecord(), action) {
@@ -56,16 +58,12 @@ export default function reducer(state = new ReducerRecord(), action) {
       return state
         .set('loading', false)
         .set('loaded', true)
-        .update('entities', (originMap) =>
-          fbToEntities(originMap, payload, EventRecord)
-        )
+        .set('entities', fbToEntities(payload, EventRecord))
 
     case FETCH_LAZY_SUCCESS:
       return state
         .set('loading', false)
-        .update('entities', (originMap) =>
-          fbToEntities(originMap, payload, EventRecord)
-        )
+        .mergeIn(['entities'], fbToEntities(payload, EventRecord))
         .set('loaded', Object.keys(payload).length < 10)
 
     case TOGGLE_SELECT:
@@ -77,7 +75,7 @@ export default function reducer(state = new ReducerRecord(), action) {
 
     case ADD_PERSON_REQUEST:
       return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
-        ids.add(payload.personId)
+        ids.concat(payload.personId)
       )
 
     default:
@@ -90,12 +88,10 @@ export default function reducer(state = new ReducerRecord(), action) {
  * */
 
 export const stateSelector = (state) => state[moduleName]
-
 export const entitiesSelector = createSelector(
   stateSelector,
   (state) => state.entities
 )
-
 export const loadingSelector = createSelector(
   stateSelector,
   (state) => state.loading
@@ -106,9 +102,7 @@ export const loadedSelector = createSelector(
 )
 export const eventListSelector = createSelector(
   entitiesSelector,
-  (entities) => {
-    return entities.toIndexedSeq().toArray()
-  }
+  (entities) => entities.toArray()
 )
 export const selectedIdsSelector = createSelector(
   stateSelector,
@@ -179,7 +173,7 @@ export const fetchLazySaga = function*() {
     type: FETCH_LAZY_START
   })
 
-  const lastEvent = state.entities.toIndexedSeq().last()
+  const lastEvent = state.entities.last()
 
   const data = yield call(api.fetchLazyEvents, lastEvent && lastEvent.id)
 
