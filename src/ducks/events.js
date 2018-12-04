@@ -23,8 +23,6 @@ export const FETCH_LAZY_SUCCESS = `${prefix}/FETCH_LAZY_SUCCESS`
 
 export const ADD_PERSON_REQUEST = `${prefix}/ADD_PERSON_REQUEST`
 
-export const DELETE_EVENT_REQUEST = `${prefix}/DELETE_EVENT_REQUEST`
-
 /**
  * Reducer
  * */
@@ -81,9 +79,6 @@ export default function reducer(state = new ReducerRecord(), action) {
       return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
         ids.add(payload.personId)
       )
-
-    case DELETE_EVENT_REQUEST:
-      return state.deleteIn(['entities', payload.eventId])
 
     default:
       return state
@@ -153,15 +148,6 @@ export function addPersonToEvent(personId, eventId) {
     type: ADD_PERSON_REQUEST,
     payload: {
       personId,
-      eventId
-    }
-  }
-}
-
-export function deleteEvent(eventId) {
-  return {
-    type: DELETE_EVENT_REQUEST,
-    payload: {
       eventId
     }
   }

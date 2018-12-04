@@ -7,7 +7,7 @@ class PersonDndPreview extends Component {
 
   render() {
     const { person } = this.props
-    return <div>{person && person.email}</div>
+    return <div>{person.email}</div>
   }
 }
 
