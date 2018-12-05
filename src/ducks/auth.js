@@ -104,7 +104,7 @@ export function signUp(email, password) {
 
 export function* signInSaga() {
   while (true) {
-    for (let i = 0; i < 3; i++) {
+    for (let i = yield 0; i < 3; i++) {
       const action = yield take(SIGN_IN_REQUEST)
 
       const {
@@ -119,7 +119,7 @@ export function* signInSaga() {
           payload: { user }
         })
 
-        i = 0
+        i = yield 0
       } catch (error) {
         yield put({
           type: SIGN_IN_ERROR,
@@ -178,21 +178,12 @@ export function* onAuthChangedSaga() {
   while (true) {
     const { data, error } = yield take(channel)
 
-    try {
-      if (data) {
-        yield put({
-          type: SIGN_IN_SUCCESS,
-          payload: { user: data }
-        })
-      }
-
-      if (error) {
-        yield put({
-          type: SIGN_IN_ERROR,
-          payload: { error }
-        })
-      }
-    } catch (e) {
+    if (data) {
+      yield put({
+        type: SIGN_IN_SUCCESS,
+        payload: { user: data }
+      })
+    } else if (error) {
       yield put({
         type: SIGN_IN_ERROR,
         payload: { error }
