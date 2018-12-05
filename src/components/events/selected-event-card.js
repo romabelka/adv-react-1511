@@ -14,7 +14,7 @@ class SelectedEventCard extends Component {
     return dropTarget(
       <div
         style={{
-          width: 400,
+          width: 600,
           height: 150,
           border: `1px solid ${borderColor}`,
           boxSizing: 'border-box'
