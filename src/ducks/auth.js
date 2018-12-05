@@ -2,8 +2,16 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
-import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  select,
+  takeEvery,
+  take,
+  fork
+} from 'redux-saga/effects'
+import { delay, eventChannel } from 'redux-saga'
 
 /**
  * Constants
@@ -65,13 +73,13 @@ export const isAuthorizedSelector = createSelector(
  * Init logic
  */
 
-api.onAuthStateChanged((user) => {
-  window.store &&
-    window.store.dispatch({
-      type: SIGN_IN_SUCCESS,
-      payload: { user }
-    })
-})
+// api.onAuthStateChanged((user) => {
+//   window.store &&
+//   window.store.dispatch({
+//     type: SIGN_IN_SUCCESS,
+//     payload: { user }
+//   })
+// })
 
 /**
  * Action Creators
@@ -94,8 +102,14 @@ export function signUp(email, password) {
  * Sagas
  **/
 
+export const createChannel = (email, password, flag) =>
+  eventChannel((emit) =>
+    api.signInSubscription(email, password, flag, ({ user }) => emit(user))
+  )
+
 export function* signInSaga() {
   while (true) {
+    console.log('---', 'In')
     for (let i = 0; i < 3; i++) {
       const action = yield take(SIGN_IN_REQUEST)
 
@@ -104,7 +118,9 @@ export function* signInSaga() {
       } = action
 
       try {
-        const user = yield call(api.signIn, email, password)
+        const channel = yield call(createChannel, email, password, 'signIn')
+
+        const user = take(channel)
 
         yield put({
           type: SIGN_IN_SUCCESS,
@@ -128,28 +144,35 @@ export function* signInSaga() {
   }
 }
 
-export function* signUpSaga({ payload: { email, password } }) {
+export function* signUpSaga() {
   if (yield select(loadingSelector)) return
+  console.log('---', 'Up')
 
   yield put({
     type: SIGN_UP_START
   })
 
-  try {
-    const user = yield call(api.signUp, email, password)
+  const action = yield take(SIGN_UP_REQUEST)
+  const {
+    payload: { email, password }
+  } = action
+
+  const channel = yield call(createChannel, email, password, 'signUp')
+
+  while (true) {
+    const user = yield take(channel)
 
     yield put({
       type: SIGN_UP_SUCCESS,
       payload: { user }
     })
-  } catch (error) {
-    yield put({
-      type: SIGN_UP_FAIL,
-      error
-    })
   }
 }
 
 export function* saga() {
-  yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
+  yield all([signUpSaga(), signInSaga()])
+  // yield all([
+  //   takeEvery(SIGN_UP_REQUEST, signUpSaga),
+  //   signInSaga()
+  // ])
 }
