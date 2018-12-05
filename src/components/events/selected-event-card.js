@@ -3,6 +3,7 @@ import { DropTarget } from 'react-dnd'
 import { connect } from 'react-redux'
 import { addPersonToEvent } from '../../ducks/events'
 import { peopleByIdsSelector } from '../../ducks/people'
+import { Motion, spring, presets } from 'react-motion'
 
 class SelectedEventCard extends Component {
   static propTypes = {}
@@ -11,19 +12,39 @@ class SelectedEventCard extends Component {
     const { event, dropTarget, canDrop, isOver } = this.props
     const borderColor = canDrop ? (isOver ? 'red' : 'green') : 'black'
 
-    return dropTarget(
-      <div
+    return (
+      <Motion
+        defaultStyle={{
+          height: 0,
+          opacity: 0,
+          width: 0
+        }}
         style={{
-          width: 400,
-          height: 150,
-          border: `1px solid ${borderColor}`,
-          boxSizing: 'border-box'
+          height: spring(150, presets.gentle),
+          opacity: spring(1),
+          width: spring(400, presets.gentle)
         }}
       >
-        <h3>{event.title}</h3>
-        <h4>{event.where}</h4>
-        {this.getPeopleList()}
-      </div>
+        {(props) => {
+          console.log(props)
+          const { height, width, opacity } = props
+          return dropTarget(
+            <div
+              style={{
+                width,
+                height,
+                border: `1px solid ${borderColor}`,
+                boxSizing: 'border-box',
+                opacity
+              }}
+            >
+              <h3>{event.title}</h3>
+              <h4>{event.where}</h4>
+              {this.getPeopleList()}
+            </div>
+          )
+        }}
+      </Motion>
     )
   }
 
