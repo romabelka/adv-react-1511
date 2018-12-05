@@ -6,7 +6,7 @@ import {
   all,
   takeEvery,
   fork,
-  cancel,
+  // cancel,
   cancelled,
   race,
   take

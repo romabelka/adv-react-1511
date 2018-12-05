@@ -58,7 +58,9 @@ class ApiService {
       .ref(`events/${eventId}/peopleIds`)
       .set(peopleIds)
 
-  onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
+  onAuthStateChanged = (onSuccess, onError) => {
+    return this.fb.auth().onAuthStateChanged(onSuccess, onError)
+  }
 
   peopleSubscription = (callback) => {
     const dataCallback = (snapshot) => callback(snapshot.val())
