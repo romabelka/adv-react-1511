@@ -224,11 +224,12 @@ export const deleteEventSaga = function*(action) {
 
 export function* addPersonToEventSaga({ payload: { eventId, personId } }) {
   const state = yield select(entitiesSelector)
-  const peopleIds = state.getIn([eventId, 'peopleIds'])
+  const currentPeopleIds = state.getIn([eventId, 'peopleIds'])
 
-  if (peopleIds.includes(personId)) return
+  if (currentPeopleIds.includes(personId)) return
+  const peopleIds = currentPeopleIds.concat(personId)
 
-  yield call(api.addPersonToEvent, eventId, peopleIds.concat(personId))
+  yield call(api.addPersonToEvent, eventId, peopleIds)
 
   yield put({
     type: ADD_PERSON_SUCCESS,

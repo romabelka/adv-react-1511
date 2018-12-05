@@ -60,6 +60,32 @@ class ApiService {
 
   onAuthStateChanged = (callback) => this.fb.auth().onAuthStateChanged(callback)
 
+  signInSubscription = (email, password, flag, callback) => {
+    const responseCallback = (user) => callback(user)
+
+    if (flag === 'signIn') {
+      this.fb
+        .auth()
+        .signInWithEmailAndPassword(email, password)
+        .then(responseCallback)
+
+      return () => {
+        console.log('signIn channel is closed')
+      }
+    }
+
+    if (flag === 'signUp') {
+      this.fb
+        .auth()
+        .createUserWithEmailAndPassword(email, password)
+        .then(responseCallback)
+
+      return () => {
+        console.log('signUp channel is closed')
+      }
+    }
+  }
+
   peopleSubscription = (callback) => {
     const dataCallback = (snapshot) => callback(snapshot.val())
 

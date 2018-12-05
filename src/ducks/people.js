@@ -186,7 +186,7 @@ export function* realtimePeopleSyncSaga() {
 
     yield put({
       type: REALTIME_FETCH_ALL_SUCCESS,
-      payload: data
+      payload: data || {}
     })
   }
 }
