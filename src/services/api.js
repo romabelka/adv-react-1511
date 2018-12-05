@@ -74,6 +74,12 @@ class ApiService {
         .ref('people')
         .off('value', dataCallback)
   }
+
+  authSubscription = (callback) => {
+    const unsubscribe = this.fb.auth().onAuthStateChanged(callback)
+
+    return unsubscribe
+  }
 }
 
 export default new ApiService()
