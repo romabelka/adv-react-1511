@@ -2,8 +2,16 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
-import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  select,
+  take,
+  fork
+} from 'redux-saga/effects'
+import { delay, eventChannel } from 'redux-saga'
 
 /**
  * Constants
@@ -18,6 +26,7 @@ export const SIGN_UP_FAIL = `${prefix}/SIGN_UP_FAIL`
 
 export const SIGN_IN_REQUEST = `${prefix}/SIGN_IN_REQUEST`
 export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
+export const REALTIME_SIGN_IN_SUCCESS = `${prefix}/REALTIME_SIGN_IN_SUCCESS`
 export const SIGN_IN_ERROR = `${prefix}/SIGN_IN_ERROR`
 
 export const SIGN_IN_LIMIT_REACHED = `${prefix}/SIGN_IN_LIMIT_REACHED`
@@ -35,6 +44,7 @@ export default function reducer(state = new ReducerRecord(), action) {
   const { type, payload, error } = action
 
   switch (type) {
+    case REALTIME_SIGN_IN_SUCCESS:
     case SIGN_IN_SUCCESS:
     case SIGN_UP_SUCCESS:
       return state.set('user', payload.user).set('loading', false)
@@ -64,14 +74,6 @@ export const isAuthorizedSelector = createSelector(
 /**
  * Init logic
  */
-
-api.onAuthStateChanged((user) => {
-  window.store &&
-    window.store.dispatch({
-      type: SIGN_IN_SUCCESS,
-      payload: { user }
-    })
-})
 
 /**
  * Action Creators
@@ -128,6 +130,22 @@ export function* signInSaga() {
   }
 }
 
+export const signInChanel = () =>
+  eventChannel((emit) => api.onAuthStateChanged((user) => emit({ user })))
+
+export function* realtimeSignInSyncSaga() {
+  const chanel = yield call(signInChanel)
+
+  while (true) {
+    const { user } = yield take(chanel)
+
+    yield put({
+      type: REALTIME_SIGN_IN_SUCCESS,
+      payload: { user }
+    })
+  }
+}
+
 export function* signUpSaga({ payload: { email, password } }) {
   if (yield select(loadingSelector)) return
 
@@ -151,5 +169,7 @@ export function* signUpSaga({ payload: { email, password } }) {
 }
 
 export function* saga() {
+  yield fork(realtimeSignInSyncSaga)
+
   yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
 }
