@@ -2,8 +2,16 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
-import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  select,
+  take,
+  fork
+} from 'redux-saga/effects'
+import { delay, eventChannel } from 'redux-saga'
 
 /**
  * Constants
@@ -65,14 +73,14 @@ export const isAuthorizedSelector = createSelector(
  * Init logic
  */
 
-api.onAuthStateChanged((user) => {
+/* api.onAuthStateChanged((user) => {
   window.store &&
     window.store.dispatch({
       type: SIGN_IN_SUCCESS,
       payload: { user }
     })
 })
-
+ */
 /**
  * Action Creators
  * */
@@ -93,6 +101,22 @@ export function signUp(email, password) {
 /**
  * Sagas
  **/
+
+export const createAuthChanel = () =>
+  eventChannel((emit) => api.onAuthStateChanged((user) => emit({ user })))
+
+export function* realtimeAuthSyncSaga() {
+  const chanel = yield call(createAuthChanel)
+
+  while (true) {
+    const { user } = yield take(chanel)
+
+    yield put({
+      type: SIGN_IN_SUCCESS,
+      payload: { user }
+    })
+  }
+}
 
 export function* signInSaga() {
   while (true) {
@@ -151,5 +175,6 @@ export function* signUpSaga({ payload: { email, password } }) {
 }
 
 export function* saga() {
+  yield fork(realtimeAuthSyncSaga)
   yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
 }
