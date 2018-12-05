@@ -7,8 +7,33 @@ class ApiService {
 
   signIn = (email, password) =>
     this.fb.auth().signInWithEmailAndPassword(email, password)
+
+  signInSubscription = (email, password, callback) => {
+    const responseCallback = (user) => callback(user)
+    this.fb
+      .auth()
+      .signInWithEmailAndPassword(email, password)
+      .then(responseCallback)
+
+    return () => {
+      console.log('signIn channel is closed')
+    }
+  }
+
   signUp = (email, password) =>
     this.fb.auth().createUserWithEmailAndPassword(email, password)
+
+  signUpSubscription = (email, password, callback) => {
+    const responseCallback = (user) => callback(user)
+    this.fb
+      .auth()
+      .createUserWithEmailAndPassword(email, password)
+      .then(responseCallback)
+
+    return () => {
+      console.log('signUp channel is closed')
+    }
+  }
 
   fetchAllEvents = () =>
     this.fb
