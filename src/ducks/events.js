@@ -72,12 +72,8 @@ export default function reducer(state = new ReducerRecord(), action) {
       )
 
     case ADD_PERSON_REQUEST:
-      return state.updateIn(
-        ['entities', payload.eventId, 'peopleIds'],
-        (ids) => {
-          ids.concat(payload.personId)
-          console.log('q', state)
-        }
+      return state.updateIn(['entities', payload.eventId, 'peopleIds'], (ids) =>
+        ids.concat(payload.personId)
       )
 
     default:
