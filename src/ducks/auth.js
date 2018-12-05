@@ -2,8 +2,16 @@ import { appName } from '../config'
 import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
-import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import {
+  all,
+  call,
+  put,
+  takeEvery,
+  select,
+  take,
+  fork
+} from 'redux-saga/effects'
+import { delay, eventChannel } from 'redux-saga'
 
 /**
  * Constants
@@ -62,18 +70,6 @@ export const isAuthorizedSelector = createSelector(
 )
 
 /**
- * Init logic
- */
-
-api.onAuthStateChanged((user) => {
-  window.store &&
-    window.store.dispatch({
-      type: SIGN_IN_SUCCESS,
-      payload: { user }
-    })
-})
-
-/**
  * Action Creators
  * */
 export function signIn(email, password) {
@@ -94,6 +90,9 @@ export function signUp(email, password) {
  * Sagas
  **/
 
+export const createAuthChannel = () =>
+  eventChannel((emit) => api.authSubscription((user) => emit({ user })))
+
 export function* signInSaga() {
   while (true) {
     for (let i = 0; i < 3; i++) {
@@ -104,13 +103,7 @@ export function* signInSaga() {
       } = action
 
       try {
-        const user = yield call(api.signIn, email, password)
-
-        yield put({
-          type: SIGN_IN_SUCCESS,
-          payload: { user }
-        })
-
+        yield call(api.signIn, email, password)
         i = 0
       } catch (error) {
         yield put({
@@ -136,12 +129,7 @@ export function* signUpSaga({ payload: { email, password } }) {
   })
 
   try {
-    const user = yield call(api.signUp, email, password)
-
-    yield put({
-      type: SIGN_UP_SUCCESS,
-      payload: { user }
-    })
+    yield call(api.signUp, email, password)
   } catch (error) {
     yield put({
       type: SIGN_UP_FAIL,
@@ -150,6 +138,21 @@ export function* signUpSaga({ payload: { email, password } }) {
   }
 }
 
+export function* authStateSaga() {
+  const chanel = yield call(createAuthChannel)
+
+  while (true) {
+    const { user } = yield take(chanel)
+
+    yield put({
+      type: SIGN_IN_SUCCESS,
+      payload: { user }
+    })
+  }
+}
+
 export function* saga() {
+  yield fork(authStateSaga)
+
   yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
 }
