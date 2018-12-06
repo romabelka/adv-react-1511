@@ -3,7 +3,8 @@ import { Record } from 'immutable'
 import { createSelector } from 'reselect'
 import api from '../services/api'
 import { all, call, put, takeEvery, select, take } from 'redux-saga/effects'
-import { delay } from 'redux-saga'
+import { delay, eventChannel } from 'redux-saga'
+import { replace } from 'connected-react-router'
 
 /**
  * Constants
@@ -19,6 +20,8 @@ export const SIGN_UP_FAIL = `${prefix}/SIGN_UP_FAIL`
 export const SIGN_IN_REQUEST = `${prefix}/SIGN_IN_REQUEST`
 export const SIGN_IN_SUCCESS = `${prefix}/SIGN_IN_SUCCESS`
 export const SIGN_IN_ERROR = `${prefix}/SIGN_IN_ERROR`
+
+export const SIGN_OUT_SUCCESS = `${prefix}/SIGN_OUT_SUCCESS`
 
 export const SIGN_IN_LIMIT_REACHED = `${prefix}/SIGN_IN_LIMIT_REACHED`
 
@@ -45,6 +48,9 @@ export default function reducer(state = new ReducerRecord(), action) {
     case SIGN_UP_FAIL:
       return state.set('error', error)
 
+    case SIGN_OUT_SUCCESS:
+      return state.set('user', null)
+
     default:
       return state
   }
@@ -60,18 +66,6 @@ export const isAuthorizedSelector = createSelector(
   userSelector,
   (user) => !!user
 )
-
-/**
- * Init logic
- */
-
-api.onAuthStateChanged((user) => {
-  window.store &&
-    window.store.dispatch({
-      type: SIGN_IN_SUCCESS,
-      payload: { user }
-    })
-})
 
 /**
  * Action Creators
@@ -150,6 +144,33 @@ export function* signUpSaga({ payload: { email, password } }) {
   }
 }
 
+const createAuthChannel = () =>
+  eventChannel((emit) => api.onAuthStateChanged((user) => emit({ user })))
+
+export const watchStatusChangeSaga = function*() {
+  const chan = yield call(createAuthChannel)
+  while (true) {
+    const { user } = yield take(chan)
+
+    if (user) {
+      yield put({
+        type: SIGN_IN_SUCCESS,
+        payload: { user }
+      })
+    } else {
+      yield put({
+        type: SIGN_OUT_SUCCESS,
+        payload: { user }
+      })
+      yield put(replace('/auth/sign-in'))
+    }
+  }
+}
+
 export function* saga() {
-  yield all([takeEvery(SIGN_UP_REQUEST, signUpSaga), signInSaga()])
+  yield all([
+    takeEvery(SIGN_UP_REQUEST, signUpSaga),
+    signInSaga(),
+    watchStatusChangeSaga()
+  ])
 }
