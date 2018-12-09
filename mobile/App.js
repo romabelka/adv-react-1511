@@ -1,27 +1,16 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-//import HelloWorld from './components/hello-world';
-import Auth from './components/auth'
-import { events } from './fixtures'
-import EventList from "./components/event-list";
+import { createStackNavigator, createAppContainer } from 'react-navigation';
+import { EventsListScreen } from './screens/EventsListScreen';
+import { EventScreen } from './screens/EventScreen';
 
-const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
 
-export default class App extends React.Component {
-  render() {
-    return (
-      <View style={styles.container}>
-        <EventList events = {eventList} />
-      </View>
-    );
-  }
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+const AppNavigator = createStackNavigator(
+  {
+    EventsList: {screen: EventsListScreen},
+    Event: {screen: EventScreen},
   },
-});
+  {
+    initialRouteName: "EventsList"
+  }
+);
+
+export default createAppContainer(AppNavigator);
