@@ -1,26 +1,31 @@
 import React from 'react';
 import { StyleSheet, Button, View, ScrollView } from 'react-native'
-//import HelloWorld from './components/hello-world';
-import Auth from './components/auth'
+// import Auth from './components/auth'
 import { events } from './fixtures'
-import EventList from "./components/event-list";
 import EventsSectionList from './components/event-section-list'
+import EventCard from './components/event-card'
 
 const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
 
 export default class App extends React.Component {
 
   state = {
-    newEventList : false,
+    showEventList : false,
+    showEventCard: false
   }
 
   toggleEventList = () => {
-    this.setState({newEventList: !this.state.newEventList})
+    this.setState({showEventList: !this.state.showEventList})
+  }
+
+  toggleEventCardDisplay = () => {
+    this.setState({showEventCard: !this.state.showEventCard})
   }
 
   render() {
 
-    const title = this.state.newEventList ? 'close events list' : 'open events list'
+    const btnEventListTitle = this.state.showEventList ? 'close events list' : 'open events list'
+    const btnEventCardTitle = this.state.showEventCard ? 'close events card' : 'open events card'
 
     return (
       <ScrollView>
@@ -30,12 +35,20 @@ export default class App extends React.Component {
               fontSize: 20
             }}
             onPress={this.toggleEventList}
-            title={title}
+            title={btnEventListTitle}
+          />
+          <Button
+            style={{
+              fontSize: 20
+            }}
+            onPress={this.toggleEventCardDisplay}
+            title={btnEventCardTitle}
           />
         </View>
       <View style={styles.container}>
 
-          {this.state.newEventList && <EventsSectionList events = {eventList}/> }
+          {this.state.showEventList && <EventsSectionList events = {eventList}/> }
+          {this.state.showEventCard && <EventCard events = {eventList}/> }
       </View>
       </ScrollView>
     );
