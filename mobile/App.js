@@ -7,11 +7,17 @@ import EventList from "./components/event-list";
 
 const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
 
+const sections = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('').map(letter => ({
+  title: letter,
+  data: eventList.filter((event) => event.title.substring(0,1).toUpperCase() === letter)
+}))
+
 export default class App extends React.Component {
+  
   render() {
     return (
       <View style={styles.container}>
-        <EventList events = {eventList} />
+        <EventList sections = {sections} />
       </View>
     );
   }
