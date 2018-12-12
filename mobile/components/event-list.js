@@ -21,8 +21,7 @@ class EventList extends Component {
 
     render() {
         return (
-            <ScrollView style={styles.container}>
-                <View style={styles.sectionsContainer}>
+            <ScrollView style={styles.sectionsContainer}>
                     <SectionList
                         renderItem={({item, index, section}) => (
                                     /*<BoxShadow setting={shadowOpt}>*/
@@ -37,25 +36,18 @@ class EventList extends Component {
                         sections={this.getSections()}
                         keyExtractor={(item, index) => item + index}
                     />
-                </View>
             </ScrollView>    
         )
     }
 }
 
 const styles = StyleSheet.create({
-    container: {
-        backgroundColor: "slategray",
-        paddingTop: 50,
-        paddingRight: 20,
-        paddingLeft: 20
-    },
     sectionsContainer: {
         backgroundColor: "white",
         paddingLeft: 20,
         paddingRight: 20,
         paddingBottom: 20,
-        marginBottom: 80
+        alignSelf: 'stretch'
     },
     sectionHeader: {
         marginTop: 20,
