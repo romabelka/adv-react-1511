@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, Button, View, ScrollView } from 'react-native'
+import { StyleSheet, Button, View, ScrollView, Text } from 'react-native'
 // import Auth from './components/auth'
 import { events } from './fixtures'
 import EventsSectionList from './components/event-section-list'
@@ -15,11 +15,11 @@ export default class App extends React.Component {
   }
 
   toggleEventList = () => {
-    this.setState({showEventList: !this.state.showEventList})
+    this.setState( (state) => ({showEventList: !state.showEventList, showEventCard: false}))
   }
 
   toggleEventCardDisplay = () => {
-    this.setState({showEventCard: !this.state.showEventCard})
+    this.setState( (state) => ({showEventCard: !state.showEventCard, showEventList: false}))
   }
 
   render() {
@@ -30,6 +30,7 @@ export default class App extends React.Component {
     return (
       <ScrollView>
         <View style={{paddingTop: 50}}>
+          <Text>choose view</Text>
           <Button
             style={{
               fontSize: 20
