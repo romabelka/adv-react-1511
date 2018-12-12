@@ -1,9 +1,20 @@
 import React, { Component } from 'react'
-import {View, ScrollView, Text, StyleSheet} from 'react-native'
+import {View, ScrollView, Text, StyleSheet, Button, Alert} from 'react-native'
 
 class Event extends Component {
     static propTypes = {
 
+    }
+    onPressDeleteEvent(){
+        Alert.alert(
+            'Delete Event',
+            'Do you want delete this Event?',
+            [
+              {text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel'},
+              {text: 'Yes', onPress: () => console.log('Delete Event')},
+            ],
+            { cancelable: true }
+          )
     }
 
     render() {
@@ -12,11 +23,21 @@ class Event extends Component {
             <ScrollView style={styles.eventContainer}>
                 <View>
                     <Text style={styles.header}> Event Card </Text>
+                </View>
+                <View>    
+                    <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Name: </Text> {title} </Text>
+                    <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Date: </Text> {when} </Text>
+                    <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Place: </Text> {where} </Text>
+                    <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Link: </Text> {url} </Text>
+                </View>
+                <View style={styles.button}>
+                    <Button
+                        onPress={this.onPressDeleteEvent}
+                        title="Delete Event"
+                        color="red"
+                        accessibilityLabel="Delete Event"
+                    />
                 </View>    
-                <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Name: </Text> {title} </Text>
-                <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Date: </Text> {when} </Text>
-                <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Place: </Text> {where} </Text>
-                <Text style={styles.cardLine}> <Text style={styles.cardLineBold}>Link: </Text> {url} </Text>
             </ScrollView>    
         )
     }
@@ -39,6 +60,9 @@ const styles = StyleSheet.create({
     },
     cardLineBold: {
         fontWeight: 'bold'
+    },
+    button: {
+        marginTop: 50
     }
 })
 
