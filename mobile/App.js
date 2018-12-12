@@ -4,14 +4,16 @@ import { StyleSheet, Text, View } from 'react-native';
 import Auth from './components/auth'
 import { events } from './fixtures'
 import EventList from "./components/event-list";
+import EventItem from "./components/event-item"
 
-const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
+const eventList = Object.entries(events).map(([id, event]) => ({ id, ...event }))
 
 export default class App extends React.Component {
   render() {
     return (
       <View style={styles.container}>
-        <EventList events = {eventList} />
+        <EventItem event={eventList[0]} />
+        <EventList events={eventList} />
       </View>
     );
   }
@@ -19,9 +21,10 @@ export default class App extends React.Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    padding: 10,
+
   },
+
 });
