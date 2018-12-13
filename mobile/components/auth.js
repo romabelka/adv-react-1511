@@ -1,18 +1,20 @@
 import React, { Component } from 'react'
 import {View, Text, TextInput, Button, Platform} from 'react-native'
+import {observable} from 'mobx'
+import {observer} from 'mobx-react'
 
+@observer
 class Auth extends Component {
     static propTypes = {
 
     };
 
-    state = {
-        email: '',
-        password: ''
-    }
+    @observable email = ''
+    @observable password = ''
 
     render() {
-        const { email, password } = this.state
+        const { email, password } = this
+        console.log('---', email, password)
         return (
             <View>
                 <View style = {styles.container}>
@@ -32,12 +34,11 @@ class Auth extends Component {
         )
     }
 
-    handleEmailChange = (email) => this.setState({ email })
-    handlePasswordChange = (password) => this.setState({ password })
+    handleEmailChange = (email) => this.email = email
+    handlePasswordChange = (password) => this.password = password
 
     handleSignIn = () => {
         this.props.onSubmit()
-        console.log('---', 123, this.state)
     }
 }
 
