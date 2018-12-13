@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {View, StyleSheet} from 'react-native'
-import { events } from '../../fixtures'
+import { events } from '../../../fixtures'
 import EventList from '../events/event-list'
 
 const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))

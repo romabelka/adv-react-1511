@@ -1,5 +1,10 @@
 import React from 'react'
-import AppNavigator from './components/navigator'
+import {configure} from 'mobx'
+import AppNavigator from './src/components/navigator'
+
+configure({
+    enforceActions: 'always'
+})
 
 export default class App extends React.Component {
   render() {

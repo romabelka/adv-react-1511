@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {View, StyleSheet} from 'react-native'
-import { events } from '../../fixtures'
+import { events } from '../../../fixtures'
 import Event from '../events/event'
 
 class EventScreen extends Component {
