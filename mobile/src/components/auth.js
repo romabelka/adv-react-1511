@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
 import {View, Text, TextInput, Button, Platform} from 'react-native'
 import IsValidEmail from './is-valid-email'
-import {observer} from 'mobx-react'
-import stores  from '../stores'
+import {observer, inject} from 'mobx-react'
 
+@inject('auth')
 @observer
 class Auth extends Component {
     static propTypes = {
@@ -11,7 +11,7 @@ class Auth extends Component {
     };
 
     render() {
-        const { email, password } = stores.auth
+        const { email, password } = this.props.auth
         return (
             <View>
                 <View style = {styles.container}>

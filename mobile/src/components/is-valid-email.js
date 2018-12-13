@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import {Text, StyleSheet} from 'react-native'
-import {observer} from 'mobx-react'
-import stores from '../stores'
+import {observer, inject} from 'mobx-react'
 
+@inject('auth')
 @observer
 class IsValidEmail extends Component {
     static propTypes = {
@@ -13,7 +13,7 @@ class IsValidEmail extends Component {
         console.log('---', 123)
         return (
             <Text>
-                {stores.auth.isValidEmail.toString()}
+                {this.props.auth.isValidEmail.toString()}
             </Text>
         )
     }
