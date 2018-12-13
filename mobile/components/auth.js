@@ -35,7 +35,10 @@ class Auth extends Component {
     handleEmailChange = (email) => this.setState({ email })
     handlePasswordChange = (password) => this.setState({ password })
 
-    handleSignIn = () => console.log('---', 123, this.state)
+    handleSignIn = () => {
+        this.props.onSubmit()
+        console.log('---', 123, this.state)
+    }
 }
 
 const styles = {
