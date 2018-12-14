@@ -1,27 +1,15 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-//import HelloWorld from './components/hello-world';
-import Auth from './components/auth'
-import { events } from './fixtures'
-import EventList from "./components/event-list";
+import React from 'react'
+import {configure} from 'mobx'
+import { Provider } from 'mobx-react'
+import AppNavigator from './src/components/navigator'
+import stores from './src/stores'
 
-const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
+configure({
+    enforceActions: 'always'
+})
 
 export default class App extends React.Component {
   render() {
-    return (
-      <View style={styles.container}>
-        <EventList events = {eventList} />
-      </View>
-    );
+    return <Provider {...stores}><AppNavigator /></Provider>
   }
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
