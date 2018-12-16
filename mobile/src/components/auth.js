@@ -32,8 +32,8 @@ class Auth extends Component {
         )
     }
 
-    handleEmailChange = (email) => stores.auth.setEmail(email)
-    handlePasswordChange = (password) => stores.auth.setPassword(password)
+    handleEmailChange = (email) => this.props.auth.setEmail(email)
+    handlePasswordChange = (password) => this.props.auth.setPassword(password)
 
     handleSignIn = () => {
         this.props.onSubmit()
