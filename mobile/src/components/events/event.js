@@ -14,6 +14,7 @@ class Event extends Component {
     }
 
     render() {
+        //console.log('router', this.props.router)
         const {event} = this.props
         return (
             <View style = {styles.container}>

@@ -10,10 +10,10 @@ class IsValidEmail extends Component {
     };
 
     render() {
-        console.log('---', 123)
+        const { title, validationName } = this.props
         return (
             <Text>
-                {this.props.auth.isValidEmail.toString()}
+                {!this.props.auth[validationName] && `${title} is not valid`}
             </Text>
         )
     }
