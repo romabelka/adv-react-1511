@@ -1,27 +1,27 @@
 import React, { Component } from 'react'
 import {Text, StyleSheet, SectionList, TouchableOpacity} from 'react-native'
-import EventCard from './event-card'
+import PeopleCard from './people-card'
 import groupBy from 'lodash/groupBy'
 import {observer, inject} from 'mobx-react'
 
-@inject('events') @observer
-class EventList extends Component {
+@inject('people') @observer
+class PeopleList extends Component {
     static propTypes = {
 
     };
 
     componentDidMount() {
-        this.props.events.loadEvents()
+        this.props.people.loadPeople()
     }
 
     render() {
-        if (this.props.events.loading) return <Text>LOADING</Text>
+        if (this.props.people.loading) return <Text>LOADING</Text>
         
-        const { onEventPress, events } = this.props
-        const grouped = groupBy(events.events, event => event.title.charAt(0))
+        const { onPersonPress, people } = this.props
+        const grouped = groupBy(people.people, person => person.lastName.charAt(0))
         const sections = Object.entries(grouped).map(([letter, list]) => ({
-            title: `${letter}, ${list.length} events`,
-            data: list.map(event => ({key: event.id, event}))
+            title: `${letter}, ${list.length} person`,
+            data: list.map(person => ({key: person.id, person}))
         }))
         
 
@@ -29,8 +29,8 @@ class EventList extends Component {
             sections = {sections}
             renderSectionHeader = {({section}) => <Text style={styles.header}>{section.title}</Text>}
             renderItem = {({item}) =>
-                <TouchableOpacity onPress = {() => onEventPress(item.event)}>
-                    <EventCard event = {item.event} />
+                <TouchableOpacity onPress = {() => onPersonPress(item.person)}>
+                    <PeopleCard person = {item.person} />
                 </TouchableOpacity>
             }
         />
@@ -52,4 +52,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default EventList
+export default PeopleList

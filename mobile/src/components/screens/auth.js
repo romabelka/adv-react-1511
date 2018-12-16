@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {StyleSheet} from 'react-native'
 import Auth from '../auth'
+import stores from '../../stores'
 
 class AuthScreen extends Component {
     static propTypes = {
@@ -16,7 +17,7 @@ class AuthScreen extends Component {
     }
 
     handleSubmit = () => {
-        this.props.navigation.navigate('eventList')
+        stores.navigator.follow('eventList')
     }
 }
 

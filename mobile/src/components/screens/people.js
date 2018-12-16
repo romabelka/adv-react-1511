@@ -1,10 +1,10 @@
 import React, { Component } from 'react'
 import {StyleSheet} from 'react-native'
-import Event from '../events/event'
+import People from '../people/people'
 import {observer, inject} from 'mobx-react'
 
-@inject('events') @observer
-class EventScreen extends Component {
+@inject('people') @observer
+class PeopleScreen extends Component {
     static propTypes = {
 
     };
@@ -15,11 +15,11 @@ class EventScreen extends Component {
 
     render() {
         const { id } = this.props.navigation.state.params
-        return <Event event = {this.props.events.events[id]} />
+        return <People people = {this.props.people.people[id]} />
     }
 }
 
 const styles = StyleSheet.create({
 })
 
-export default EventScreen
+export default PeopleScreen

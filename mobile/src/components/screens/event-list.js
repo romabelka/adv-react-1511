@@ -1,23 +1,24 @@
 import React, { Component } from 'react'
-import {View, StyleSheet} from 'react-native'
-import { events } from '../../../fixtures'
+import {StyleSheet} from 'react-native'
 import EventList from '../events/event-list'
+import stores from '../../stores'
+import {observer, inject} from 'mobx-react'
 
-const eventList = Object.entries(events).map(([ id, event ]) => ({ id, ...event }))
-
+@inject('events') @observer
 class EventListScreen extends Component {
     static propTypes = {
 
     };
 
     render() {
-        return <EventList events={eventList} onEventPress = {this.handleEventPress}/>
+        return <EventList onEventPress = {this.handleEventPress}/>
     }
 
     handleEventPress = event => {
-        this.props.navigation.navigate('event', { id: event.id })
+        stores.navigator.follow('event', { id: event.id })
     }
 }
+
 
 const styles = StyleSheet.create({
 })
