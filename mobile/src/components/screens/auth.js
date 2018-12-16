@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
-import {StyleSheet} from 'react-native'
+import {StyleSheet, ActivityIndicator, View} from 'react-native'
 import Auth from '../auth'
+import { when } from 'mobx'
+import {observer, inject} from 'mobx-react'
 
+@inject('auth')
+@observer
 class AuthScreen extends Component {
     static propTypes = {
 
@@ -11,12 +15,28 @@ class AuthScreen extends Component {
         title: 'Auth Screen'
     }
 
+    componentDidUpdate() {
+      when(
+        () => this.props.auth.isSuccess,
+        () => {
+          this.props.navigation.navigate('eventList')
+        }
+      )
+    }
+
     render() {
-        return <Auth onSubmit = {this.handleSubmit}/>
+        const {loading} = this.props.auth;
+        return (
+          <View>
+            {this.props.auth.loading && <ActivityIndicator  size="large" color="#0000ff"/>}
+            {!this.props.auth.loading && <Auth onSubmit = {this.handleSubmit}/>}
+          </View>
+        )
     }
 
     handleSubmit = () => {
-        this.props.navigation.navigate('eventList')
+      const { email, password, signIn, isSuccess } = this.props.auth;
+      signIn(email, password)
     }
 }
 
