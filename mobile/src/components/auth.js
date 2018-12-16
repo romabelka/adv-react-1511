@@ -1,32 +1,44 @@
 import React, { Component } from 'react'
 import {View, Text, TextInput, Button, Platform} from 'react-native'
-import IsValidEmail from './is-valid-email'
+import IsValidField from './is-valid-field'
+import Loader from './common/loader'
 import {observer, inject} from 'mobx-react'
+import stores from '../stores'
 
 @inject('auth')
 @observer
 class Auth extends Component {
     static propTypes = {
 
-    };
+    }
+
 
     render() {
-        const { email, password } = this.props.auth
+        const { email, password, error, loading } = this.props.auth
+
+        if(loading) return <Loader />
         return (
             <View>
                 <View style = {styles.container}>
                     <Text style = {{ fontSize: 40 }}>Email: </Text>
                     <TextInput value = {email} onChangeText = {this.handleEmailChange} style = {styles.input}/>
+                    <IsValidField title='Email' validationName='isValidEmail' />
                 </View>
-                <IsValidEmail />
                 <View>
                     <Text>Password: </Text>
                     <TextInput value = {password} onChangeText = {this.handlePasswordChange}
                                secureTextEntry
                     />
+                    <IsValidField title='Password' validationName='isValidPassword' />
                 </View>
                 <View>
                     <Button title="Sign In" onPress={this.handleSignIn}/>
+                </View>
+                <View>
+                    <Button title="Sign Up" onPress={this.handleSignUp}/>
+                </View>
+                <View>
+                    <Text>{error}</Text>
                 </View>
             </View>
         )
@@ -36,7 +48,11 @@ class Auth extends Component {
     handlePasswordChange = (password) => stores.auth.setPassword(password)
 
     handleSignIn = () => {
-        this.props.onSubmit()
+        this.props.onSubmit('signIn')
+    }
+
+    handleSignUp = () => {
+        this.props.onSubmit('signUp')
     }
 }
 
