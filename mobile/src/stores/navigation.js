@@ -7,7 +7,7 @@ export default class NavigationStore {
     }
 
     @action setScreen = (screen, params ) => this.screen = {
-        screen,
+        name: screen,
         params
     }
 }

@@ -7,7 +7,7 @@ export default class AuthStore {
     @observable password = ''
 
     @observable loading = false
-    @observable user = null
+    @observable user = {}//null
     @observable error = null
 
     @action setEmail = email => this.email = email
@@ -17,7 +17,6 @@ export default class AuthStore {
     @action setUser = user => this.user = user
 
     @action authorize = async (action) => {
-        console.log('action', action)
         const { email, password } = this
 
         if(!this.isValidEmail) return
