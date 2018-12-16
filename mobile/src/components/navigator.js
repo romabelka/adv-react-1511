@@ -5,7 +5,7 @@ import EventListScreen from './screens/event-list'
 
 export default createAppContainer(createStackNavigator({
     auth: {
-        screen: AuthScreen
+        screen: AuthScreen,
     },
     event: {
         screen: EventScreen

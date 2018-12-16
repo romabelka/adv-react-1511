@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import {View, Text, Image, StyleSheet, Button} from 'react-native'
 import ConfirmModal from '../common/confirm-modal'
+import {inject} from 'mobx-react'
 
+@inject('router')
 class Event extends Component {
     static propTypes = {
 

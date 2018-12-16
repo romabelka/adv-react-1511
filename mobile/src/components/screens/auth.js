@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import {StyleSheet} from 'react-native'
 import Auth from '../auth'
+import withRouterProvider from '../decorators/with-router-provider'
 
 class AuthScreen extends Component {
     static propTypes = {
@@ -16,11 +17,11 @@ class AuthScreen extends Component {
     }
 
     handleSubmit = () => {
-        this.props.navigation.navigate('eventList')
+        this.props.setScreen('eventList')
     }
 }
 
 const styles = StyleSheet.create({
 })
 
-export default AuthScreen
+export default withRouterProvider(AuthScreen)
