@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {View, Text, Image, StyleSheet, Button} from 'react-native'
+import {View, Text, StyleSheet, Button} from 'react-native'
 import ConfirmModal from '../common/confirm-modal'
 
-class Event extends Component {
+class People extends Component {
     static propTypes = {
 
     };
@@ -12,23 +12,18 @@ class Event extends Component {
     }
 
     render() {
-        const event = this.props.event
+        const people = this.props.people
         return (
             <View style = {styles.container}>
-                <Text style = {[styles.text, styles.header]}>{event.title}</Text>
                 <View>
-                    <Image
-                        source={{uri: 'http://lorempixel.com/200/100/technics'}}
-                        style={styles.image}
-                    />
-                    <Text>{event.when}</Text>
-                    <Text>{event.where}</Text>
+                    <Text>{people.lastName}</Text>
+                    <Text>{people.firstName}</Text>
+                    <Text>{people.email}</Text>
                 </View>
-                <Text style = {styles.text}>{event.url}</Text>
                 <View style = {styles.button}>
                     <Button
                         onPress={this.handleDelete}
-                        title="Delete Event"
+                        title="Delete Person"
                         color="#F55"
                     />
                 </View>
@@ -36,7 +31,7 @@ class Event extends Component {
                               onConfirm = {this.confirmDelete}
                               onCancel = {this.cancelDelete}
                 >
-                    Are you sure you want to delete "{event.title}"
+                    Are you sure you want to delete person?
                 </ConfirmModal>
             </View>
         )
@@ -85,4 +80,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default Event
+export default People
