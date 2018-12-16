@@ -5,7 +5,7 @@ import AppNavigator from './src/components/navigator'
 import stores from './src/stores'
 
 configure({
-    enforceActions: 'always'
+    enforceActions: 'observed'
 })
 
 export default class App extends React.Component {
