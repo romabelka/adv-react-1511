@@ -10,6 +10,8 @@ configure({
 
 export default class App extends React.Component {
   render() {
-    return <Provider {...stores}><AppNavigator /></Provider>
+    return <Provider {...stores}>
+        <AppNavigator ref = {stores.navigation.setNavRef}/>
+    </Provider>
   }
 }

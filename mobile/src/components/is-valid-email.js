@@ -10,7 +10,6 @@ class IsValidEmail extends Component {
     };
 
     render() {
-        console.log('---', 123)
         return (
             <Text>
                 {this.props.auth.isValidEmail.toString()}

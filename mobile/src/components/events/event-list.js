@@ -1,16 +1,17 @@
 import React, { Component } from 'react'
 import {Text, StyleSheet, SectionList, TouchableOpacity} from 'react-native'
+import {inject} from 'mobx-react'
 import EventCard from './event-card'
 import groupBy from 'lodash/groupBy'
 
+@inject('navigation')
 class EventList extends Component {
     static propTypes = {
 
     };
 
     render() {
-        const { onEventPress, events } = this.props
-        const grouped = groupBy(events, event => event.title.charAt(0))
+        const grouped = groupBy(this.props.events, event => event.title.charAt(0))
         const sections = Object.entries(grouped).map(([letter, list]) => ({
             title: `${letter}, ${list.length} events`,
             data: list.map(event => ({key: event.id, event}))
@@ -18,13 +19,14 @@ class EventList extends Component {
         return <SectionList
             sections = {sections}
             renderSectionHeader = {({section}) => <Text style={styles.header}>{section.title}</Text>}
-            renderItem = {({item}) =>
-                <TouchableOpacity onPress = {() => onEventPress(item.event)}>
+            renderItem = {({item}) => <TouchableOpacity onPress = {() => this.handleEventPress(item.event)}>
                     <EventCard event = {item.event} />
                 </TouchableOpacity>
-            }
+                }
         />
     }
+
+    handleEventPress = ({ id, title }) => this.props.navigation.goTo('event', { id, title })
 }
 
 const styles = StyleSheet.create({
