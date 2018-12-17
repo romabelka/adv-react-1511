@@ -14,7 +14,7 @@ class NavigationStore extends BasicStore {
                 const screen = user ? 'lists' : 'auth'
 
                 if (!firstRun) {
-                    this.goTo(screen)
+//                    this.goTo(screen)
                 }
 
                 firstRun = false

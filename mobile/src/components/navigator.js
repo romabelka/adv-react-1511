@@ -3,6 +3,7 @@ import AuthScreen from './screens/auth'
 import EventScreen from './screens/event'
 import EventListScreen from './screens/event-list'
 import PeopleListScreen from './screens/people-list'
+import EventMapScreen from './screens/event-map'
 
 const ListsNavigator = createBottomTabNavigator({
     events: {
@@ -15,6 +16,9 @@ const ListsNavigator = createBottomTabNavigator({
 
 
 const StackNavigator = createStackNavigator({
+    eventMap: {
+        screen: EventMapScreen
+    },
     auth: {
         screen: AuthScreen,
     },
