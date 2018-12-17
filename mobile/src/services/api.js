@@ -20,6 +20,10 @@ class ApiService {
 
     fetchAllPeople = () => this.fetchAllByEntityName('people')
 
+    onAuthStateChanged = callback =>
+        this.fb
+            .auth()
+            .onAuthStateChanged(callback)
 }
 
 export default new ApiService()

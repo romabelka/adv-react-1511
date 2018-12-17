@@ -4,6 +4,13 @@ import BasicStore from './basic-store'
 import api from '../services/api'
 
 class AuthStore extends BasicStore {
+    constructor(...args) {
+        super(...args)
+
+        api.onAuthStateChanged(this.setUser)
+    }
+
+
     @observable email = ''
     @observable password = ''
     @observable user = null
@@ -13,6 +20,7 @@ class AuthStore extends BasicStore {
 
     @action setEmail = email => this.email = email
     @action setPassword = password => this.password = password
+    @action setUser = user => this.user = user
 
     signIn = () => {
         api.signIn(this.email, this.password)
