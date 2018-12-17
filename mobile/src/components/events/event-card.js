@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import {Text, StyleSheet} from 'react-native'
+import {observer} from 'mobx-react'
 import Card from '../common/card'
 
+@observer
 class EventCard extends Component {
     static propTypes = {
 

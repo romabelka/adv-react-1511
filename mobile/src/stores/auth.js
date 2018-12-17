@@ -18,7 +18,6 @@ class AuthStore extends BasicStore {
         api.signIn(this.email, this.password)
             .then(action(user => {
                 this.user = user
-                this.getStore('navigation').goTo('lists')
             }))
     }
 
