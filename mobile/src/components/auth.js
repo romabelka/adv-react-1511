@@ -36,7 +36,7 @@ class Auth extends Component {
     handlePasswordChange = (password) => this.props.auth.setPassword(password)
 
     handleSignIn = () => {
-        this.props.onSubmit()
+        this.props.auth.signIn()
     }
 }
 
