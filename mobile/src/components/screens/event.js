@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
-import {View, StyleSheet} from 'react-native'
-import { events } from '../../../fixtures'
+import {inject, observer} from 'mobx-react'
 import Event from '../events/event'
 
+@inject('events') @observer
 class EventScreen extends Component {
     static propTypes = {
 
@@ -13,12 +13,8 @@ class EventScreen extends Component {
     })
 
     render() {
-        const { id } = this.props.navigation.state.params
-        return <Event event = {events[id]} />
+        return <Event event = {this.props.events.entities[this.props.navigation.state.params.id]}/>
     }
 }
-
-const styles = StyleSheet.create({
-})
 
 export default EventScreen

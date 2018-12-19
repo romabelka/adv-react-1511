@@ -1,14 +1,35 @@
-import { observable, action, computed } from 'mobx'
-import { validate } from 'email-validator'
+import {observable, action, computed} from 'mobx'
+import {validate} from 'email-validator'
+import BasicStore from './basic-store'
+import api from '../services/api'
 
-export default class AuthStore {
+class AuthStore extends BasicStore {
+    constructor(...args) {
+        super(...args)
+
+        api.onAuthStateChanged(this.setUser)
+    }
+
+
     @observable email = ''
     @observable password = ''
-
-    @action setEmail = email => this.email = email
-    @action setPassword = password => this.password = password
-
+    @observable user = null
     @computed get isValidEmail() {
         return validate(this.email)
     }
+
+    @action setEmail = email => this.email = email
+    @action setPassword = password => this.password = password
+    @action setUser = user => this.user = user
+
+    signIn = () => {
+        api.signIn(this.email, this.password)
+            .then(action(user => {
+                this.user = user
+            }))
+    }
+
+
 }
+
+export default AuthStore
