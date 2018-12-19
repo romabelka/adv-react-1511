@@ -1,5 +1,5 @@
-import {observable, action, computed} from 'mobx'
-import {validate} from 'email-validator'
+import { observable, action, computed } from 'mobx'
+import { validate } from 'email-validator'
 import BasicStore from './basic-store'
 import api from '../services/api'
 

@@ -1,5 +1,5 @@
-import EntitiesStore, {loadAllHelper}  from './entities-store'
-import {computed, action} from 'mobx'
+import EntitiesStore, { loadAllHelper } from './entities-store'
+import { computed, action } from 'mobx'
 import groupBy from 'lodash/groupBy'
 
 class PeopleStore extends EntitiesStore {
@@ -8,11 +8,17 @@ class PeopleStore extends EntitiesStore {
 
         return Object.entries(grouped).map(([letter, list]) => ({
             title: `${letter}, ${list.length} people`,
-            data: list.map(person => ({key: person.id, person}))
+            data: list.map(person => ({ key: person.id, person }))
         }))
     }
 
     @action loadAll = loadAllHelper('people')
+
+    @action takePhoto = (id, data) => {
+        this.entities[id].avatar = data
+        console.log('--- ', 'take photo');
+        this.getStore('navigation').goTo('lists')
+    }
 }
 
 export default PeopleStore
