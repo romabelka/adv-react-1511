@@ -1,25 +1,38 @@
 import React, { Component } from 'react'
-import {View, Text, Image, StyleSheet} from 'react-native'
+import { View, Text, Image, StyleSheet, Button } from 'react-native'
 import Card from '../common/card'
+import { observer, inject } from 'mobx-react'
 
+@inject('navigation')
+@observer
 class PersonCard extends Component {
     static propTypes = {
 
     };
 
     render() {
-        const { email, firstName, lastName } = this.props.person
+        const { email, firstName, lastName, id, avatar } = this.props.person
         return (
-            <Card style = {styles.container}>
-                <Image source={{uri: 'http://lorempixel.com/200/100/people/'}} style = {styles.avatar}/>
-                <View style = {styles.content}>
-                    <Text style = {styles.email}>{email}</Text>
-                    <Text>{firstName} {lastName}</Text>
-                </View>
-            </Card>
+            <View>
+                <Card style={styles.container}>
+                    <Image source={{ uri: avatar || 'http://lorempixel.com/200/100/people/' }} style={styles.avatar} />
+                    <View style={styles.content}>
+                        <Text style={styles.email}>{email}</Text>
+                        <Text>{firstName} {lastName}</Text>
+                    </View>
+
+                </Card>
+                <Button
+                    title={'Take Photo'}
+                    onPress={() => this.handleEventPress(id)}
+                />
+            </View>
         )
     }
+
+    handleEventPress = id => { this.props.navigation.goTo('photo', { id }) }
 }
+
 
 const styles = StyleSheet.create({
     container: {

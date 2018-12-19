@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import {View, Text, TextInput, Button, Platform} from 'react-native'
+import { View, Text, TextInput, Button, Platform } from 'react-native'
 import IsValidEmail from './is-valid-email'
-import {observer, inject} from 'mobx-react'
+import { observer, inject } from 'mobx-react'
 
-@inject('auth')
+@inject('auth', 'navigation')
 @observer
 class Auth extends Component {
     static propTypes = {
@@ -11,22 +11,25 @@ class Auth extends Component {
     };
 
     render() {
-        const { email, password } = this.props.auth
+        const { email, password, user } = this.props.auth
+        if (!!user) {
+            this.props.navigation.goTo('lists')
+        }
         return (
             <View>
-                <View style = {styles.container}>
-                    <Text style = {{ fontSize: 40 }}>Email: </Text>
-                    <TextInput value = {email} onChangeText = {this.handleEmailChange} style = {styles.input}/>
+                <View style={styles.container}>
+                    <Text style={{ fontSize: 40 }}>Email: </Text>
+                    <TextInput value={email} onChangeText={this.handleEmailChange} style={styles.input} />
                 </View>
                 <IsValidEmail />
                 <View>
                     <Text>Password: </Text>
-                    <TextInput value = {password} onChangeText = {this.handlePasswordChange}
-                               secureTextEntry
+                    <TextInput value={password} onChangeText={this.handlePasswordChange}
+                        secureTextEntry
                     />
                 </View>
                 <View>
-                    <Button title="Sign In" onPress={this.handleSignIn}/>
+                    <Button title="Sign In" onPress={this.handleSignIn} />
                 </View>
             </View>
         )
