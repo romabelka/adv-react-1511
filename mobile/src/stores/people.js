@@ -13,6 +13,10 @@ class PeopleStore extends EntitiesStore {
     }
 
     @action loadAll = loadAllHelper('people')
+
+    @action setPhoto = (id, data) => {
+        this.entities[id].photo = data
+    }
 }
 
 export default PeopleStore

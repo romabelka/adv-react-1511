@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import {View, StyleSheet} from 'react-native'
-import { MapView, Location, Permissions } from 'expo'
+import { CameraRoll, Location, Permissions } from 'expo'
 import {observer} from 'mobx-react'
 import {observable, action} from 'mobx'
 
