@@ -3,6 +3,7 @@ import {View, Text, TextInput, Button, Platform} from 'react-native'
 import IsValidEmail from './is-valid-email'
 import {observer, inject} from 'mobx-react'
 
+@inject('navigation')
 @inject('auth')
 @observer
 class Auth extends Component {
@@ -37,6 +38,7 @@ class Auth extends Component {
 
     handleSignIn = () => {
         this.props.auth.signIn()
+        this.props.navigation.goTo('lists', {})
     }
 }
 

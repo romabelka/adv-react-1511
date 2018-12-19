@@ -4,6 +4,7 @@ import EventScreen from './screens/event'
 import EventListScreen from './screens/event-list'
 import PeopleListScreen from './screens/people-list'
 import EventMapScreen from './screens/event-map'
+import FrontCameraScreen from './screens/camera'
 
 const ListsNavigator = createBottomTabNavigator({
     events: {
@@ -16,9 +17,6 @@ const ListsNavigator = createBottomTabNavigator({
 
 
 const StackNavigator = createStackNavigator({
-    eventMap: {
-        screen: EventMapScreen
-    },
     auth: {
         screen: AuthScreen,
     },
@@ -27,7 +25,13 @@ const StackNavigator = createStackNavigator({
     },
     event: {
         screen: EventScreen
-    }
+    },
+    eventMap: {
+        screen: EventMapScreen
+    },
+    camera: {
+        screen: FrontCameraScreen
+    },
 })
 
 export default createAppContainer(StackNavigator)
