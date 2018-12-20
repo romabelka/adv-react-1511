@@ -1,4 +1,4 @@
-import {NavigationActions} from 'react-navigation'
+import {NavigationActions, StackActions} from 'react-navigation'
 import BasicStore from './basic-store'
 import {autorun} from 'mobx'
 
@@ -14,7 +14,7 @@ class NavigationStore extends BasicStore {
                 const screen = user ? 'lists' : 'auth'
 
                 if (!firstRun) {
-//                    this.goTo(screen)
+                    this.goTo(screen)
                 }
 
                 firstRun = false
@@ -31,6 +31,14 @@ class NavigationStore extends BasicStore {
         routeName, params
     }))
 
+    goBack = () => this.ref.dispatch(NavigationActions.back())
+
+    reset = routeName => this.ref.dispatch(StackActions.reset({
+        index: 0,
+        actions: [
+            NavigationActions.navigate({ routeName })
+        ]
+    }))
 }
 
 export default NavigationStore

@@ -26,6 +26,7 @@ class AuthStore extends BasicStore {
         api.signIn(this.email, this.password)
             .then(action(user => {
                 this.user = user
+                console.log('---', 123, user)
             }))
     }
 

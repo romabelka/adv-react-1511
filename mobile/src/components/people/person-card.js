@@ -1,17 +1,19 @@
 import React, { Component } from 'react'
 import {View, Text, Image, StyleSheet} from 'react-native'
+import {observer} from 'mobx-react'
 import Card from '../common/card'
 
+@observer
 class PersonCard extends Component {
     static propTypes = {
 
     };
 
     render() {
-        const { email, firstName, lastName } = this.props.person
+        const { email, firstName, lastName, avatar } = this.props.person
         return (
             <Card style = {styles.container}>
-                <Image source={{uri: 'http://lorempixel.com/200/100/people/'}} style = {styles.avatar}/>
+                <Image source={{uri: avatar || 'http://lorempixel.com/200/100/people/'}} style = {styles.avatar}/>
                 <View style = {styles.content}>
                     <Text style = {styles.email}>{email}</Text>
                     <Text>{firstName} {lastName}</Text>

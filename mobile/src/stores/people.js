@@ -13,6 +13,11 @@ class PeopleStore extends EntitiesStore {
     }
 
     @action loadAll = loadAllHelper('people')
+
+    @action takePhoto = (id, uri) => {
+        this.entities[id].avatar = uri
+        this.getStore('navigation').goBack()
+    }
 }
 
 export default PeopleStore
